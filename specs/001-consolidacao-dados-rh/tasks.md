@@ -242,19 +242,19 @@ esperado em menos de 3 s ([quickstart.md](quickstart.md) §4).
 **Teste independente**: somas por agrupamento iguais ao total, e salários conferidos à mão
 ([quickstart.md](quickstart.md) §5).
 
-- [ ] T038 [P] [US3] Criar `src/test/java/br/edu/unidavi/rhgravatai/indicador/IndicadorIntegracaoTest.java` (RF03, FR-024 a FR-028):
+- [X] T038 [P] [US3] Criar `src/test/java/br/edu/unidavi/rhgravatai/indicador/IndicadorIntegracaoTest.java` (RF03, FR-024 a FR-028):
   - **Quadro**: a soma de `porSituacao`, de `porRegime` e de `porSecretaria` é igual a `total`.
   - **Salários**: por padrão só ativos; `situacao` explícita prevalece; salário zero ou nulo fica fora de soma e média e entra em `quantidadeSemSalario`; média com 2 casas (`HALF_UP`).
   - **Filtros**: respeitados nos dois endpoints.
-- [ ] T039 [P] [US3] Criar `src/main/java/br/edu/unidavi/rhgravatai/indicador/QuadroService.java` e `QuadroResposta.java`: três `GROUP BY` (`situacao`, `regime`, `secretaria`) com o mesmo filtro, mais o `total` (RF03, FR-024, FR-027, FR-029).
-- [ ] T040 [P] [US3] Criar `src/main/java/br/edu/unidavi/rhgravatai/indicador/SalarioService.java` e `GrupoSalarialResposta.java` (RF03, FR-025, FR-026):
+- [X] T039 [P] [US3] Criar `src/main/java/br/edu/unidavi/rhgravatai/indicador/QuadroService.java` e `QuadroResposta.java`: três `GROUP BY` (`situacao`, `regime`, `secretaria`) com o mesmo filtro, mais o `total` (RF03, FR-024, FR-027, FR-029).
+- [X] T040 [P] [US3] Criar `src/main/java/br/edu/unidavi/rhgravatai/indicador/SalarioService.java` e `GrupoSalarialResposta.java` (RF03, FR-025, FR-026):
   - agrupa por `cargo` e `nivel`;
   - `quantidade` = vínculos com salário maior que 0; `quantidadeSemSalario` = os demais;
   - `soma` e `media` só sobre salário maior que 0;
   - sem filtro `situacao`, considera `TRABALHANDO`/`AFASTADO` e `ativo_na_fonte`;
   - ordenação `cargo|nivel|quantidade|soma|media`, padrão `soma,desc`;
   - paginado.
-- [ ] T041 [US3] Criar `src/main/java/br/edu/unidavi/rhgravatai/indicador/IndicadorController.java` com `GET /api/v1/indicadores/quadro` e `GET /api/v1/indicadores/salarios` (RF03).
+- [X] T041 [US3] Criar `src/main/java/br/edu/unidavi/rhgravatai/indicador/IndicadorController.java` com `GET /api/v1/indicadores/quadro` e `GET /api/v1/indicadores/salarios` (RF03).
 
 **Ponto de controle (meta 17/10)**
 
@@ -267,14 +267,14 @@ secretaria reaproveita o `/indicadores/quadro` (RF04).
 
 **Teste independente**: valores dos gráficos iguais às contagens da consulta com os mesmos filtros.
 
-- [ ] T042 [P] [US4] Criar `src/test/java/br/edu/unidavi/rhgravatai/grafico/GraficoIntegracaoTest.java` (RF04, FR-030 a FR-032):
+- [X] T042 [P] [US4] Criar `src/test/java/br/edu/unidavi/rhgravatai/grafico/GraficoIntegracaoTest.java` (RF04, FR-030 a FR-032):
   - **Movimentação MES**: inclui meses sem movimento com zero; admissões contadas por `data_admissao` e desligamentos por `data_desligamento`.
   - **Movimentação ANO**: agrupamento anual.
   - **Motivos**: no máximo 10, mais "Outros" e "Não informado".
   - **Validação**: `inicio` maior que `fim` responde 400; parâmetro obrigatório ausente responde 400.
-- [ ] T043 [P] [US4] Criar `src/main/java/br/edu/unidavi/rhgravatai/grafico/MovimentacaoService.java`: `generate_series` dos períodos entre `inicio` e `fim`, com granularidade `MES` (`yyyy-MM`) ou `ANO` (`yyyy`) e filtros `regime`, `secretaria` e `cargo` (RF04, FR-030).
-- [ ] T044 [P] [US4] Criar `src/main/java/br/edu/unidavi/rhgravatai/grafico/MotivosRescisaoService.java`: desligados no período, agrupados por `motivo_desligamento`; os 10 maiores, o resto somado em "Outros" e os nulos em "Não informado" (RF04, FR-031).
-- [ ] T045 [US4] Criar `src/main/java/br/edu/unidavi/rhgravatai/grafico/GraficoController.java` com `GET /api/v1/graficos/movimentacao` e `GET /api/v1/graficos/motivos-rescisao` (RF04).
+- [X] T043 [P] [US4] Criar `src/main/java/br/edu/unidavi/rhgravatai/grafico/MovimentacaoService.java`: `generate_series` dos períodos entre `inicio` e `fim`, com granularidade `MES` (`yyyy-MM`) ou `ANO` (`yyyy`) e filtros `regime`, `secretaria` e `cargo` (RF04, FR-030).
+- [X] T044 [P] [US4] Criar `src/main/java/br/edu/unidavi/rhgravatai/grafico/MotivosRescisaoService.java`: desligados no período, agrupados por `motivo_desligamento`; os 10 maiores, o resto somado em "Outros" e os nulos em "Não informado" (RF04, FR-031).
+- [X] T045 [US4] Criar `src/main/java/br/edu/unidavi/rhgravatai/grafico/GraficoController.java` com `GET /api/v1/graficos/movimentacao` e `GET /api/v1/graficos/motivos-rescisao` (RF04).
 
 **Ponto de controle (meta 17/10)**
 
