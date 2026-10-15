@@ -119,21 +119,19 @@ Pacotes por funcionalidade deixam cada RF num lugar só, facilitando a divisão 
 
 ## Ordem de Entrega
 
-Datas a partir do prazo dos documentos aprovados. O detalhamento das tarefas sai do
-`/speckit-tasks`.
+Desenvolvimento feito por Deivid com apoio do Claude; Kaue Gorges e Guilherme Antunes cuidam da
+qualidade. O detalhamento está em [tasks.md](tasks.md).
 
 | Até | Entrega | Histórias |
 |-----|---------|-----------|
-| 15/10 | Projeto criado, esquema do banco, carga completa funcionando, `/status`, `/vinculos` e `/filtros/opcoes`. Contrato publicado para o front. | 1 e 2 (P1) |
-| 17/10 | `/indicadores/quadro`, `/indicadores/salarios`, `/graficos/*` | 3 e 4 (P2) |
-| 19/10 | `/alertas` e `/exportacoes/*` | 5 e 6 (P3) |
-| 20/10 | Validação por amostragem (100 registros) e testes de aceitação | todas |
-| 21/10 | Implantação na AWS e carga em produção | todas |
+| 16/10 (sex) | Projeto, esquema do banco, carga completa, `/status`, `/vinculos` e `/filtros/opcoes` | 1 e 2 (P1) |
+| 17/10 (sáb) | Indicadores, gráficos, alertas e exportação: back-end completo | 3 a 6 |
+| 18 a 20/10 | Front-end e implantação na AWS | todas |
+| 21/10 | Validação por amostragem (100 registros) e ajustes | todas |
 | 22/10 | Apresentação final | |
 
-O marco de 15/10 nos documentos inclui indicadores e gráficos. Ele só é viável se o
-front-end trabalhar em paralelo usando o contrato desde já. Se o prazo apertar, a ordem
-acima define o que sai primeiro.
+O marco de 15/10 dos documentos aprovados não será cumprido para indicadores e gráficos. A
+mudança de prazo deve ser registrada como Solicitação de Mudança (constituição, princípio III).
 
 ## Riscos Técnicos
 
@@ -142,7 +140,7 @@ acima define o que sai primeiro.
 | A fonte cai ou muda o formato | Os dados da última carga continuam publicados. A falha fica registrada em `carga`. Para a apresentação, ter uma carga bem-sucedida feita no dia anterior. |
 | Páginas lentas (até 17 s) | Tempo limite de 90 s por página e novas tentativas. A carga roda de madrugada. |
 | Crédito AWS acaba | Alerta no Budgets em US$ 35 e US$ 45. Desligar a instância depois da avaliação, se ninguém assumir o custo. |
-| Front-end atrasa por falta de API | Contrato fechado agora. O Swagger fica disponível desde a primeira versão. |
+| Pouco tempo para o front-end (3 dias) | Contrato fechado antes; back-end completo até 17/10 para o front começar com a API pronta. |
 
 ## Acompanhamento de Complexidade
 
