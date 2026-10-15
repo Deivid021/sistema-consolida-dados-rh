@@ -192,7 +192,7 @@ com `gravados + rejeitados = totalInformado` e nenhum CPF no banco ([quickstart.
   - `teto` lido de `teto_valor` e `teto_origem` da última carga com sucesso; `SUSPENSA` enquanto a US5 não existir.
 - [ ] T031 [US1] Registrar logs da carga em `ExecutorCarga` e `PublicadorCarga`: início, progresso a cada 50 páginas e fim com totais e status. Nunca registrar conteúdo de registros (RNF01).
 
-**Ponto de controle (meta 15/10)**: carga real concluída localmente ([quickstart.md](quickstart.md) §3) e `CargaIntegracaoTest` passando.
+**Ponto de controle (meta 16/10)**: carga real concluída localmente ([quickstart.md](quickstart.md) §3) e `CargaIntegracaoTest` passando.
 
 ---
 
@@ -224,7 +224,7 @@ esperado em menos de 3 s ([quickstart.md](quickstart.md) §4).
 - [ ] T036 [US2] Criar `src/main/java/br/edu/unidavi/rhgravatai/vinculo/VinculoController.java` com `GET /api/v1/vinculos`, aceitando parâmetros repetidos para as listas e convertendo para `FiltroVinculos` (RF02, FR-014, FR-022).
 - [ ] T037 [US2] Criar `src/main/java/br/edu/unidavi/rhgravatai/vinculo/OpcoesFiltroService.java` e adicionar `GET /api/v1/filtros/opcoes` ao `VinculoController`: `GROUP BY` em `situacao`, `regime`, `classificacao`, `secretaria`, `local_trabalho` e `cargo`, incluindo os nulos, ordenado por valor (RF02, FR-016).
 
-**Ponto de controle (meta 15/10)**: MVP pronto (importação e consulta). Liberar o Swagger para a equipe de front.
+**Ponto de controle (meta 16/10)**: MVP pronto (importação e consulta).
 
 ---
 
@@ -303,7 +303,7 @@ secretaria reaproveita o `/indicadores/quadro` (RF04).
   - resposta conforme `PaginaAlertas`, com `teto` e `percentualForaPadrao`;
   - `descricaoRegra` em português, por exemplo: "Salário base 25,3% acima da mediana dos 12 vínculos ativos com o mesmo cargo, nível e carga horária." e "Salário base R$ 1.234,56 acima do teto municipal (subsídio do prefeito)".
 
-**Ponto de controle (meta 19/10)**
+**Ponto de controle (meta 17/10)**
 
 ---
 
@@ -331,7 +331,7 @@ depois da US5.
   - recebe os mesmos parâmetros de filtro e ordenação do endpoint correspondente;
   - conta as linhas antes de gerar o PDF e lança `ExportacaoMuitoGrandeException` acima do limite.
 
-**Ponto de controle (meta 19/10)**
+**Ponto de controle (meta 17/10): back-end completo**
 
 ---
 
@@ -347,9 +347,9 @@ depois da US5.
   - **Custos**: alertas do AWS Budgets em US$ 35 e US$ 45.
   - **Backup**: `pg_dump` diário.
   - **Encerramento**: passos para desligar tudo ao fim do semestre.
-- [ ] T059 Implantar na AWS seguindo `docs/implantacao-aws.md`, rodar a carga em produção e conferir `GET /api/v1/status` pela URL do CloudFront (meta 21/10).
+- [ ] T059 Implantar na AWS seguindo `docs/implantacao-aws.md`, rodar a carga em produção e conferir `GET /api/v1/status` pela URL do CloudFront (meta 20/10).
 - [ ] T060 [P] Criar `README.md` com objetivo, requisitos, como rodar localmente (link para o [quickstart.md](specs/001-consolidacao-dados-rh/quickstart.md)), link do Swagger e estrutura de pacotes.
-- [ ] T061 Executar o [quickstart.md](quickstart.md) completo e a validação por amostragem de 100 registros (§6, SC-003, responsáveis Kaue Gorges e Samuel P. Frare). Registrar o resultado em `docs/validacao-amostragem.md` (meta 20/10).
+- [ ] T061 Executar o [quickstart.md](quickstart.md) completo e a validação por amostragem de 100 registros (§6, SC-003, revisão de qualidade com Kaue Gorges e Guilherme Antunes). Registrar o resultado em `docs/validacao-amostragem.md` (meta 21/10).
 
 ---
 
@@ -403,29 +403,30 @@ Tarefa: "T044 MotivosRescisaoService"
 
 ## Estratégia de implementação
 
-### MVP primeiro (US1 + US2, meta 15/10)
+### MVP primeiro (US1 + US2, meta 16/10)
 
 1. Fase 1 (preparação) e Fase 2 (fundação).
 2. US1: carga real concluída e conciliada.
 3. US2: consulta com filtros.
-4. **Parar e validar**: [quickstart.md](quickstart.md) §3 e §4. Liberar o Swagger para o front.
+4. **Parar e validar**: [quickstart.md](quickstart.md) §3 e §4.
 
 ### Entrega incremental
 
 | Até | Fases | Validação |
 |-----|-------|-----------|
-| 15/10 | 1, 2, US1, US2 | carga real e consulta |
-| 17/10 | US3, US4 | totais conferidos |
-| 19/10 | US5, US6 | alertas e arquivos conferidos |
-| 20/10 | T061 | amostragem de 100 registros |
-| 21/10 | T057 a T060 | produção no ar |
+| 16/10 (sex) | 1, 2, US1, US2 | carga real e consulta |
+| 17/10 (sáb) | US3, US4, US5, US6, T056 | back-end completo, `mvn verify` passando |
+| 18 a 20/10 | front-end, T057 a T060 | telas consumindo a API; produção no ar |
+| 21/10 | T061 | amostragem de 100 registros e ajustes |
 | 22/10 | | apresentação |
 
-### Divisão sugerida na equipe
+### Equipe
 
-- **Deivid (back-end)**: Fases 1 e 2, US1, US2 e implantação.
-- **Kaue e Samuel (QA e regras)**: revisar e completar T046 e T047 (casos de alerta) e executar o T061 (amostragem).
-- **Guilherme e Júlio (front-end)**: no repositório do front, consumir o contrato desde já. Podem revisar as respostas da US3 e da US4 pelo Swagger.
+- **Desenvolvimento** (back-end, front-end e implantação): Deivid, com apoio do Claude.
+- **Qualidade**: Kaue Gorges e Guilherme Antunes revisam os casos de alerta (T046, T047),
+  testam pelo Swagger e participam da amostragem (T061).
+- A organização em repositórios pode mudar (front-end no mesmo repositório). Se isso
+  acontecer, o back-end vai para uma pasta `backend/` sem mudar as tarefas.
 
 ---
 
