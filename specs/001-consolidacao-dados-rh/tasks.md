@@ -323,18 +323,18 @@ depois da US5.
 
 **Teste independente**: o arquivo exportado tem os mesmos registros e totais da tela ([quickstart.md](quickstart.md) §5).
 
-- [ ] T052 [P] [US6] Criar `src/test/java/br/edu/unidavi/rhgravatai/exportacao/ExportacaoIntegracaoTest.java` (RF05, FR-033 a FR-036):
+- [X] T052 [P] [US6] Criar `src/test/java/br/edu/unidavi/rhgravatai/exportacao/ExportacaoIntegracaoTest.java` (RF05, FR-033 a FR-036):
   - **CSV**: contém todas as linhas filtradas, mesmo acima do tamanho de página; começa com BOM UTF-8; separador `;`; valores como `3905,17`; datas `dd/MM/yyyy`; nenhum CPF.
   - **PDF**: `application/pdf` com texto do título e dos filtros; mais de `exportacao.pdf.max-linhas` responde 422 (use um limite menor só no teste).
   - **Arquivo**: `Content-Disposition` com nome e data.
-- [ ] T053 [P] [US6] Criar `src/main/java/br/edu/unidavi/rhgravatai/exportacao/EscritorCsv.java`: `StreamingResponseBody` lendo em fluxo (`Stream` do repositório com fetch size de 1000), cabeçalhos em português e formato do T052 (RF05, FR-034).
-- [ ] T054 [P] [US6] Criar `src/main/java/br/edu/unidavi/rhgravatai/exportacao/GeradorPdf.java`, com OpenPDF em A4 paisagem (RF05, FR-035):
+- [X] T053 [P] [US6] Criar `src/main/java/br/edu/unidavi/rhgravatai/exportacao/EscritorCsv.java`: `StreamingResponseBody` lendo em fluxo (`Stream` do repositório com fetch size de 1000), cabeçalhos em português e formato do T052 (RF05, FR-034).
+- [X] T054 [P] [US6] Criar `src/main/java/br/edu/unidavi/rhgravatai/exportacao/GeradorPdf.java`, com OpenPDF em A4 paisagem (RF05, FR-035):
   - título do relatório;
   - lista dos filtros aplicados;
   - "Dados atualizados em" com a última carga e "Gerado em";
   - tabela e totais;
   - rodapé "Fonte: API de Dados Abertos de Pessoal - Prefeitura de Gravataí/RS".
-- [ ] T055 [US6] Criar `src/main/java/br/edu/unidavi/rhgravatai/exportacao/ExportacaoController.java` com `GET /api/v1/exportacoes/{relatorio}?formato=csv|pdf` (RF05, FR-033, FR-036):
+- [X] T055 [US6] Criar `src/main/java/br/edu/unidavi/rhgravatai/exportacao/ExportacaoController.java` com `GET /api/v1/exportacoes/{relatorio}?formato=csv|pdf` (RF05, FR-033, FR-036):
   - recebe os mesmos parâmetros de filtro e ordenação do endpoint correspondente;
   - conta as linhas antes de gerar o PDF e lança `ExportacaoMuitoGrandeException` acima do limite.
 
