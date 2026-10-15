@@ -1,5 +1,5 @@
 # Desenvolvimento: `docker compose up -d banco` (porta local 5433)
-# Produção (EC2): `docker compose up -d --build`, com DB_SENHA e ADMIN_TOKEN no arquivo .env
+# Produção (EC2): `docker compose --profile app up -d --build`, com DB_SENHA e ADMIN_TOKEN no .env
 services:
   banco:
     image: postgres:17
@@ -8,7 +8,7 @@ services:
       POSTGRES_USER: rh
       POSTGRES_PASSWORD: ${DB_SENHA:-rh}
     ports:
-      - "5433:5432"
+      - "127.0.0.1:5433:5432"
     volumes:
       - dados-banco:/var/lib/postgresql/data
     healthcheck:

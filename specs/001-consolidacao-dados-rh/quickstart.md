@@ -13,7 +13,7 @@ Roteiro para provar que a funcionalidade funciona de ponta a ponta. Não contém
 ## 1. Subir o ambiente local
 
 ```bash
-docker compose up -d banco                 # PostgreSQL 17 em localhost:5432
+docker compose up -d banco                 # PostgreSQL 17 em localhost:5433
 export ADMIN_TOKEN=um-token-local
 mvn spring-boot:run                        # aplica as migrações Flyway e sobe em :8080
 ```
