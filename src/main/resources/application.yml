@@ -1,0 +1,55 @@
+spring:
+  application:
+    name: rh-gravatai
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/rh}
+    username: ${DB_USUARIO:rh}
+    password: ${DB_SENHA:rh}
+  jackson:
+    time-zone: America/Sao_Paulo
+  mvc:
+    format:
+      date: iso
+    problemdetails:
+      enabled: true
+
+server:
+  error:
+    include-stacktrace: never
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+
+# API de Dados Abertos de Pessoal de Gravataí (RF01)
+fonte:
+  url-base: https://gravatai.atende.net/api/transparencia-pessoal-funcionarios
+  intervalo-minimo-ms: 1100
+  timeout-s: 90
+  max-tentativas: 5
+
+importacao:
+  # Todo dia às 02:00, horário de Brasília (FR-012)
+  cron: "0 0 2 * * *"
+
+alertas:
+  fora-padrao:
+    percentual: 20
+    minimo-grupo: 5
+
+exportacao:
+  pdf:
+    max-linhas: 5000
+
+admin:
+  # Sem valor configurado, os endpoints /admin respondem sempre 401
+  token: ${ADMIN_TOKEN:}
+
+cors:
+  origens: ${CORS_ORIGENS:}

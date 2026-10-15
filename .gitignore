@@ -1,0 +1,13 @@
+target/
+*.class
+*.jar
+*.log
+.env
+.env.*
+.idea/
+*.iml
+.vscode/
+.DS_Store
+Thumbs.db
+*.tmp
+*.swp
