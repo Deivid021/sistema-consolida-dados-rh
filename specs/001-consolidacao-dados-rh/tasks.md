@@ -345,8 +345,8 @@ depois da US5.
 ## Fase 9: Acabamento e preocupações transversais
 
 - [X] T056 [P] Criar `src/test/java/br/edu/unidavi/rhgravatai/ContratoApiTest.java`: todo caminho e método de `specs/001-consolidacao-dados-rh/contracts/api-consulta.yaml` deve existir em `/v3/api-docs`. Divergência é defeito.
-- [ ] T057 Medir o desempenho com a base real, cerca de 55 mil vínculos (RNF02, SC-004). Cronometrar `/vinculos` com `q` e filtros, `/indicadores/*`, `/graficos/*` e `/alertas`. Se algum passar de 3 s, criar índice em `src/main/resources/db/migration/V2__indices_desempenho.sql`. Registrar os tempos em `docs/desempenho.md`.
-- [ ] T058 [P] Criar `docs/implantacao-aws.md`:
+- [X] T057 Medir o desempenho com a base real, cerca de 55 mil vínculos (RNF02, SC-004). Cronometrar `/vinculos` com `q` e filtros, `/indicadores/*`, `/graficos/*` e `/alertas`. Se algum passar de 3 s, criar índice em `src/main/resources/db/migration/V2__indices_desempenho.sql`. Registrar os tempos em `docs/desempenho.md`.
+- [X] T058 [P] Criar `docs/implantacao-aws.md`:
   - **Instância**: EC2 `t4g.small` com Amazon Linux e Docker Compose.
   - **Variáveis**: `DB_*`, `ADMIN_TOKEN` e `CORS_ORIGENS`.
   - **Rede**: security group liberando a porta 8080 só para o CloudFront (prefix list gerenciada).
@@ -355,7 +355,7 @@ depois da US5.
   - **Backup**: `pg_dump` diário.
   - **Encerramento**: passos para desligar tudo ao fim do semestre.
 - [ ] T059 Implantar na AWS seguindo `docs/implantacao-aws.md`, rodar a carga em produção e conferir `GET /api/v1/status` pela URL do CloudFront (meta 20/10).
-- [ ] T060 [P] Criar `README.md` com objetivo, requisitos, como rodar localmente (link para o [quickstart.md](specs/001-consolidacao-dados-rh/quickstart.md)), link do Swagger e estrutura de pacotes.
+- [X] T060 [P] Criar `README.md` com objetivo, requisitos, como rodar localmente (link para o [quickstart.md](specs/001-consolidacao-dados-rh/quickstart.md)), link do Swagger e estrutura de pacotes.
 - [ ] T061 Executar o [quickstart.md](quickstart.md) completo e a validação por amostragem de 100 registros (§6, SC-003, revisão de qualidade com Kaue Gorges e Guilherme Antunes). Registrar o resultado em `docs/validacao-amostragem.md` (meta 21/10).
 
 ---
