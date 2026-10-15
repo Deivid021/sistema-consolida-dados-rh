@@ -41,6 +41,11 @@ public class TratadorErros {
                 "O parâmetro '" + e.getParameterName() + "' é obrigatório.");
     }
 
+    @ExceptionHandler(ExportacaoMuitoGrandeException.class)
+    ProblemDetail exportacaoMuitoGrande(ExportacaoMuitoGrandeException e) {
+        return problema(HttpStatus.UNPROCESSABLE_CONTENT, "Relatório muito grande para PDF", e.getMessage());
+    }
+
     @ExceptionHandler(AcessoNegadoException.class)
     ProblemDetail acessoNegado(AcessoNegadoException e) {
         return problema(HttpStatus.UNAUTHORIZED, "Acesso negado", e.getMessage());
