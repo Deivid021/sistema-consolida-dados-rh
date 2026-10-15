@@ -344,7 +344,7 @@ depois da US5.
 
 ## Fase 9: Acabamento e preocupações transversais
 
-- [ ] T056 [P] Criar `src/test/java/br/edu/unidavi/rhgravatai/ContratoApiTest.java`: todo caminho e método de `specs/001-consolidacao-dados-rh/contracts/api-consulta.yaml` deve existir em `/v3/api-docs`. Divergência é defeito.
+- [X] T056 [P] Criar `src/test/java/br/edu/unidavi/rhgravatai/ContratoApiTest.java`: todo caminho e método de `specs/001-consolidacao-dados-rh/contracts/api-consulta.yaml` deve existir em `/v3/api-docs`. Divergência é defeito.
 - [ ] T057 Medir o desempenho com a base real, cerca de 55 mil vínculos (RNF02, SC-004). Cronometrar `/vinculos` com `q` e filtros, `/indicadores/*`, `/graficos/*` e `/alertas`. Se algum passar de 3 s, criar índice em `src/main/resources/db/migration/V2__indices_desempenho.sql`. Registrar os tempos em `docs/desempenho.md`.
 - [ ] T058 [P] Criar `docs/implantacao-aws.md`:
   - **Instância**: EC2 `t4g.small` com Amazon Linux e Docker Compose.
