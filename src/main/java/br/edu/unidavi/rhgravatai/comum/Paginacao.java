@@ -26,6 +26,12 @@ public record Paginacao(int pagina, int tamanho, String orderBy) {
         return new Paginacao(p, t, orderBy(ordenacao == null ? ordenacaoPadrao : ordenacao, colunasPermitidas));
     }
 
+    /** Página e tamanho validados, para listagens com ordenação fixa. */
+    public static Paginacao de(Integer pagina, Integer tamanho) {
+        Paginacao validada = de(pagina, tamanho, "fixa,asc", Map.of("fixa", "1"), "fixa,asc");
+        return new Paginacao(validada.pagina(), validada.tamanho(), null);
+    }
+
     public long deslocamento() {
         return (long) pagina * tamanho;
     }

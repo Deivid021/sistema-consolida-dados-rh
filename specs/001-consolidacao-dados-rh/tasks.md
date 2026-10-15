@@ -286,26 +286,26 @@ secretaria reaproveita o `/indicadores/quadro` (RF04).
 
 **Teste independente**: dados com casos conhecidos geram exatamente os alertas esperados (SC-007).
 
-- [ ] T046 [P] [US5] Criar `src/test/java/br/edu/unidavi/rhgravatai/alerta/RegraForaPadraoTest.java` (RF06, FR-038, FR-039). Casos:
+- [X] T046 [P] [US5] Criar `src/test/java/br/edu/unidavi/rhgravatai/alerta/RegraForaPadraoTest.java` (RF06, FR-038, FR-039). Casos:
   - grupo de 5 com mediana 1000; salário 1200 (exatamente 20%) não gera alerta; 1200,01 gera;
   - 799,99 gera; 800 não gera;
   - grupo com 4 vínculos não gera;
   - nível nulo não gera; salário zero não gera;
   - grupo par usa a mediana pela média dos dois centrais;
   - mesmo cargo e nível com horas mensais diferentes formam grupos distintos.
-- [ ] T047 [P] [US5] Criar `src/test/java/br/edu/unidavi/rhgravatai/alerta/ResolvedorTetoTest.java` (RF06, FR-037):
+- [X] T047 [P] [US5] Criar `src/test/java/br/edu/unidavi/rhgravatai/alerta/ResolvedorTetoTest.java` (RF06, FR-037):
   - **Valor manual**: um `parametro_teto` vigente prevalece (`MANUAL`); com dois valores, vale o de maior `vigencia_inicio` não posterior à data da carga.
   - **Fonte**: sem valor manual, usa o vínculo ativo de cargo `PREFEITO` (`FONTE`).
   - **Sem teto**: sem nenhum dos dois, a regra fica `SUSPENSA` e não gera alertas.
   - **Sinalização**: salário igual ao teto não é sinalizado; o vínculo do prefeito nunca é sinalizado.
-- [ ] T048 [P] [US5] Criar `ParametroTeto.java`, `Alerta.java`, `RegraAlerta.java` (`TETO`, `FORA_PADRAO`) e os repositórios em `src/main/java/br/edu/unidavi/rhgravatai/alerta/` (RF06).
-- [ ] T049 [US5] Criar `src/main/java/br/edu/unidavi/rhgravatai/alerta/ResolvedorTeto.java`, aplicando as regras do T047 e devolvendo valor, origem, fundamento e o id do vínculo-fonte (RF06, FR-037).
-- [ ] T050 [US5] Criar `src/main/java/br/edu/unidavi/rhgravatai/alerta/CalculadorAlertas.java`, implementando `AposPublicacao` na mesma transação da publicação (RF06, FR-037 a FR-041):
+- [X] T048 [P] [US5] Criar `ParametroTeto.java`, `Alerta.java`, `RegraAlerta.java` (`TETO`, `FORA_PADRAO`) e os repositórios em `src/main/java/br/edu/unidavi/rhgravatai/alerta/` (RF06).
+- [X] T049 [US5] Criar `src/main/java/br/edu/unidavi/rhgravatai/alerta/ResolvedorTeto.java`, aplicando as regras do T047 e devolvendo valor, origem, fundamento e o id do vínculo-fonte (RF06, FR-037).
+- [X] T050 [US5] Criar `src/main/java/br/edu/unidavi/rhgravatai/alerta/CalculadorAlertas.java`, implementando `AposPublicacao` na mesma transação da publicação (RF06, FR-037 a FR-041):
   1. Apagar todos os registros de `alerta`.
   2. **Teto**: inserir alertas `TETO` para vínculos ativos com salário maior que o teto, exceto o vínculo-fonte.
   3. **Fora do padrão**: inserir alertas `FORA_PADRAO`, por SQL com `percentile_cont(0.5)`, sobre grupos (`cargo`, `nivel`, `horas_mensais_min`) de vínculos ativos com `nivel` não nulo e salário maior que 0, com pelo menos `alertas.fora-padrao.minimo-grupo` vínculos e `abs(salario - mediana) / mediana > percentual/100`.
   4. Gravar `teto_valor` e `teto_origem` na carga.
-- [ ] T051 [US5] Criar `src/main/java/br/edu/unidavi/rhgravatai/alerta/AlertaController.java` e `AlertaService.java` com `GET /api/v1/alertas` (RF06, FR-040 a FR-042):
+- [X] T051 [US5] Criar `src/main/java/br/edu/unidavi/rhgravatai/alerta/AlertaController.java` e `AlertaService.java` com `GET /api/v1/alertas` (RF06, FR-040 a FR-042):
   - filtro `regra` mais `q`, `regime`, `secretaria` e `cargo`;
   - resposta conforme `PaginaAlertas`, com `teto` e `percentualForaPadrao`;
   - `descricaoRegra` em português, por exemplo: "Salário base 25,3% acima da mediana dos 12 vínculos ativos com o mesmo cargo, nível e carga horária." e "Salário base R$ 1.234,56 acima do teto municipal (subsídio do prefeito)".
