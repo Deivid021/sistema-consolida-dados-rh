@@ -16,8 +16,9 @@ public class UltimaAtualizacao {
 
     /** Nulo antes da primeira carga bem-sucedida. */
     public OffsetDateTime obter() {
-        return jdbc.sql("SELECT max(fim) FROM carga WHERE status = 'SUCESSO'")
+        return jdbc.sql("SELECT fim FROM carga WHERE status = 'SUCESSO' ORDER BY fim DESC LIMIT 1")
                 .query(OffsetDateTime.class)
-                .single();
+                .optional()
+                .orElse(null);
     }
 }

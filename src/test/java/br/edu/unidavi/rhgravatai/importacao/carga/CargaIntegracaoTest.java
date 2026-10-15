@@ -147,6 +147,10 @@ class CargaIntegracaoTest extends TesteIntegracaoBase {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.ultimaAtualizacao").doesNotExist())
                 .andExpect(jsonPath("$.teto.origem").value("SUSPENSA"));
+        mvc.perform(get("/api/v1/vinculos"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.total").value(0))
+                .andExpect(jsonPath("$.ultimaAtualizacao").doesNotExist());
 
         fonte.usar("pagina-1.json", "pagina-2.json");
         executor.executarCompleta(OrigemCarga.MANUAL);
@@ -156,6 +160,8 @@ class CargaIntegracaoTest extends TesteIntegracaoBase {
                 .andExpect(jsonPath("$.ultimaAtualizacao").isNotEmpty())
                 .andExpect(jsonPath("$.totalVinculos").value(4))
                 .andExpect(jsonPath("$.totalAtivos").value(3))
+                .andExpect(jsonPath("$.teto.origem").value("FONTE"))
+                .andExpect(jsonPath("$.teto.valor").value(28936.07))
                 .andExpect(jsonPath("$.fonte").value("API de Dados Abertos de Pessoal - Prefeitura de Gravataí/RS"));
     }
 
