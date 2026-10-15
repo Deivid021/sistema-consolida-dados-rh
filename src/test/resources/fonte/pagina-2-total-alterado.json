@@ -1,0 +1,47 @@
+{
+  "registros": [
+    {
+      "entidade": "MUNICÍPIO DE TESTE",
+      "matricula": "400-01",
+      "nome": "MARIA DA CONCEIÇÃO",
+      "cpf": "***.333.333-**",
+      "situacao": "Trabalhando",
+      "admissao": "01/01/2025",
+      "regime": "ELETIVO",
+      "classificacao": null,
+      "formaInvestidura": null,
+      "centroCusto": "GP - GABINETE DO PREFEITO",
+      "localTrabalho": "GABINETE",
+      "cargo": "PREFEITO",
+      "funcao": null,
+      "nivel": "388",
+      "salarioBase": "28.936,07",
+      "horario": "220h",
+      "horasMensais": "220:00",
+      "horasSemanais": "044:00"
+    },
+    {
+      "entidade": "MUNICÍPIO DE TESTE",
+      "matricula": "500-01",
+      "nome": "REGISTRO INVALIDO",
+      "cpf": "***.444.444-**",
+      "situacao": "Trabalhando",
+      "admissao": "10/10/2010",
+      "regime": "CLT",
+      "classificacao": null,
+      "formaInvestidura": null,
+      "centroCusto": "SMS - SAUDE",
+      "localTrabalho": null,
+      "cargo": "GUARDA",
+      "funcao": null,
+      "nivel": "3",
+      "salarioBase": "abc",
+      "horario": "220h",
+      "horasMensais": "220:00",
+      "horasSemanais": "044:00"
+    }
+  ],
+  "paginaAtual": "2",
+  "totalPaginas": 2,
+  "totalRegistros": 6
+}

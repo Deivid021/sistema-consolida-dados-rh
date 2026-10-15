@@ -22,8 +22,9 @@ US$ 50. Detalhes e alternativas em [research.md](research.md).
 
 **Linguagem/Versão**: Java 21
 
-**Dependências principais**: Spring Boot 4.1.1 (Web MVC, Data JPA, Validation, Actuator),
-Flyway, driver PostgreSQL, OpenPDF 3.0.5, springdoc-openapi 3.1.x
+**Dependências principais**: Spring Boot 4.1.1 (Web MVC, JDBC com `JdbcClient`, Validation,
+Actuator, Flyway), driver PostgreSQL, OpenPDF 3.0.5, springdoc-openapi 3.1.x. Sem JPA: as
+consultas, agregações e a publicação da carga são SQL explícito (decisão de 2026-10-15).
 
 **Armazenamento**: PostgreSQL 17 com extensão `pg_trgm`
 

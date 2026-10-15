@@ -16,6 +16,13 @@ obrigatório: escreva o teste junto com a implementação, antes de marcar a tar
 **Organização**: tarefas agrupadas por história de usuário, na ordem de entrega do plano. Cada
 tarefa indica o requisito (RF/RNF) que atende.
 
+**Nota de implementação (2026-10-15)**: o acesso ao banco usa SQL direto (`JdbcClient`) em vez
+de JPA. O mesmo filtro (`FiltroVinculos.paraSql`) serve à consulta, às agregações e à exportação,
+e a publicação da carga é feita em SQL em lote. Por isso `Vinculo.java`, `VinculoRepository.java`
+e `EspecificacaoVinculos.java` (T011, T013) não existem; a lógica está em `FiltroVinculos`,
+`ConsultaVinculoService` e `CargaRepository`. As entidades das tarefas T012, T024 e T048 viram
+records e repositórios JDBC.
+
 ## Formato: `[ID] [P?] [História] Descrição`
 
 - **[P]**: pode rodar em paralelo (arquivos diferentes, sem dependência de tarefa pendente)
@@ -35,13 +42,13 @@ tarefa indica o requisito (RF/RNF) que atende.
 
 **Objetivo**: criar o projeto e o ambiente local.
 
-- [ ] T001 Criar `pom.xml`:
+- [X] T001 Criar `pom.xml`:
   - **Base**: parent `spring-boot-starter-parent` 4.1.1, `java.version` 21, groupId `br.edu.unidavi`, artifactId `rh-gravatai`.
   - **Dependências**: `spring-boot-starter-web`, `spring-boot-starter-data-jpa`, `spring-boot-starter-validation`, `spring-boot-starter-actuator`, `flyway-core`, `flyway-database-postgresql`, `postgresql` (runtime), `com.github.librepdf:openpdf` 3.0.5 e `org.springdoc:springdoc-openapi-starter-webmvc-ui` 3.1.x.
   - **Testes**: `spring-boot-starter-test`, `spring-boot-testcontainers` e `org.testcontainers:postgresql`.
   - **Versões**: as demais são gerenciadas pelo Boot.
-- [ ] T002 Criar `src/main/java/br/edu/unidavi/rhgravatai/RhGravataiApplication.java`, com `@SpringBootApplication`, `@EnableScheduling` e `@EnableAsync`.
-- [ ] T003 Criar `src/main/resources/application.yml`:
+- [X] T002 Criar `src/main/java/br/edu/unidavi/rhgravatai/RhGravataiApplication.java`, com `@SpringBootApplication`, `@EnableScheduling` e `@EnableAsync`.
+- [X] T003 Criar `src/main/resources/application.yml`:
   - **Banco**: datasource lido de `DB_URL`, `DB_USUARIO` e `DB_SENHA`, com padrão para `jdbc:postgresql://localhost:5432/rh`.
   - **JPA**: `spring.jpa.hibernate.ddl-auto=validate` e `spring.jpa.open-in-view=false`.
   - **Fuso**: `spring.jackson.time-zone=America/Sao_Paulo`.
@@ -51,14 +58,14 @@ tarefa indica o requisito (RF/RNF) que atende.
   - **Exportação**: `exportacao.pdf.max-linhas=5000`.
   - **Administração**: `admin.token` lido de `ADMIN_TOKEN`, sem padrão.
   - **CORS**: `cors.origens` lido de `CORS_ORIGENS`, vazio por padrão.
-- [ ] T004 [P] Criar `compose.yaml`:
+- [X] T004 [P] Criar `compose.yaml`:
   - **Serviço `banco`**: `postgres:17`, banco `rh`, volume nomeado e porta 5432.
   - **Serviço `app`**: build do `Dockerfile`, variáveis do T003, `restart: unless-stopped` e healthcheck em `/actuator/health`.
-- [ ] T005 [P] Criar `Dockerfile` multi-estágio:
+- [X] T005 [P] Criar `Dockerfile` multi-estágio:
   - **Build**: `maven:3.9-eclipse-temurin-21`.
   - **Execução**: `eclipse-temurin:21-jre`.
   - **Compatibilidade**: imagens com suporte a arm64, para a EC2 `t4g`.
-- [ ] T006 [P] Criar `.gitignore` (`target/`, `.env`, `.idea/`, `*.iml`, `.vscode/`) e `.editorconfig` (UTF-8, LF, indentação de 4 espaços em Java e 2 em YAML).
+- [X] T006 [P] Criar `.gitignore` (`target/`, `.env`, `.idea/`, `*.iml`, `.vscode/`) e `.editorconfig` (UTF-8, LF, indentação de 4 espaços em Java e 2 em YAML).
 
 ---
 
@@ -68,7 +75,7 @@ tarefa indica o requisito (RF/RNF) que atende.
 
 **⚠️ CRÍTICO**: nenhuma história começa antes desta fase terminar.
 
-- [ ] T007 Criar `src/main/resources/db/migration/V1__esquema_inicial.sql` com todas as tabelas do [data-model.md](data-model.md):
+- [X] T007 Criar `src/main/resources/db/migration/V1__esquema_inicial.sql` com todas as tabelas do [data-model.md](data-model.md):
   - **Extensão**: `CREATE EXTENSION IF NOT EXISTS pg_trgm`.
   - **`carga`**:
     - `status` com CHECK em (`EM_ANDAMENTO`, `SUCESSO`, `FALHA`, `INCONSISTENTE`) e `origem` com CHECK em (`AGENDADA`, `MANUAL`);
@@ -86,30 +93,30 @@ tarefa indica o requisito (RF/RNF) que atende.
   - **`parametro_teto`**: `valor numeric(12,2) NOT NULL CHECK (valor > 0)` e `vigencia_inicio date NOT NULL UNIQUE`.
   - **`alerta`**: `regra` com CHECK em (`TETO`, `FORA_PADRAO`) e único `(vinculo_id, regra)`.
   - **CPF**: nenhuma coluna de CPF em nenhuma tabela.
-- [ ] T008 [P] Criar a base de testes de integração `src/test/java/br/edu/unidavi/rhgravatai/TesteIntegracaoBase.java`: `@SpringBootTest` com um contêiner `PostgreSQLContainer("postgres:17")` anotado com `@ServiceConnection`, compartilhado entre as classes.
-- [ ] T009 [P] Criar `src/main/java/br/edu/unidavi/rhgravatai/comum/NormalizadorTexto.java`:
+- [ ] T008 [P] Criar a base de testes de integração `src/test/java/br/edu/unidavi/rhgravatai/TesteIntegracaoBase.java`: `@SpringBootTest` com um contêiner `PostgreSQLContainer("postgres:17")` anotado com `@ServiceConnection`, compartilhado entre as classes. **(escrito; falta rodar com Docker)**
+- [X] T009 [P] Criar `src/main/java/br/edu/unidavi/rhgravatai/comum/NormalizadorTexto.java`:
   - remove espaços nas pontas, converte para minúsculas e remove acentos (`Normalizer.Form.NFD` mais remoção de marcas);
   - devolve nulo para texto vazio.
   - Teste em `src/test/java/br/edu/unidavi/rhgravatai/comum/NormalizadorTextoTest.java` (RF02, FR-019).
-- [ ] T010 [P] Criar `src/main/java/br/edu/unidavi/rhgravatai/comum/erro/TratadorErros.java` (`@RestControllerAdvice`), respondendo `ProblemDetail` (application/problem+json) com `detail` em português:
+- [X] T010 [P] Criar `src/main/java/br/edu/unidavi/rhgravatai/comum/erro/TratadorErros.java` (`@RestControllerAdvice`), respondendo `ProblemDetail` (application/problem+json) com `detail` em português:
   - **400**: `FiltroInvalidoException` e erros de conversão de parâmetro;
   - **409**: `CargaEmAndamentoException`;
   - **422**: `ExportacaoMuitoGrandeException`.
-- [ ] T011 Criar `src/main/java/br/edu/unidavi/rhgravatai/vinculo/Situacao.java` (enum `TRABALHANDO`, `AFASTADO`, `DESLIGADO`, com conversão de "Trabalhando", "Afastado" e "Demitido"; FR-023), `Vinculo.java` (entidade JPA da tabela `vinculo`) e `VinculoRepository.java` (`JpaRepository` + `JpaSpecificationExecutor`).
-- [ ] T012 [P] Criar em `src/main/java/br/edu/unidavi/rhgravatai/importacao/carga/`: `Carga.java` (entidade JPA), `StatusCarga.java`, `OrigemCarga.java`, `OrigemTeto.java` e `CargaRepository.java`. O repositório deve ter `findTopByStatusOrderByFimDesc(SUCESSO)` e `existsByStatus(EM_ANDAMENTO)`.
-- [ ] T013 Criar `src/main/java/br/edu/unidavi/rhgravatai/comum/filtro/FiltroVinculos.java` (record com `q`, `situacao`, `regime`, `classificacao`, `secretaria`, `localTrabalho` e `cargo` como listas, e os períodos de admissão e desligamento) e `EspecificacaoVinculos.java` (`Specification<Vinculo>`):
+- [X] T011 Criar `src/main/java/br/edu/unidavi/rhgravatai/vinculo/Situacao.java` (enum `TRABALHANDO`, `AFASTADO`, `DESLIGADO`, com conversão de "Trabalhando", "Afastado" e "Demitido"; FR-023), `Vinculo.java` (entidade JPA da tabela `vinculo`) e `VinculoRepository.java` (`JpaRepository` + `JpaSpecificationExecutor`).
+- [X] T012 [P] Criar em `src/main/java/br/edu/unidavi/rhgravatai/importacao/carga/`: `Carga.java` (entidade JPA), `StatusCarga.java`, `OrigemCarga.java`, `OrigemTeto.java` e `CargaRepository.java`. O repositório deve ter `findTopByStatusOrderByFimDesc(SUCESSO)` e `existsByStatus(EM_ANDAMENTO)`.
+- [X] T013 Criar `src/main/java/br/edu/unidavi/rhgravatai/comum/filtro/FiltroVinculos.java` (record com `q`, `situacao`, `regime`, `classificacao`, `secretaria`, `localTrabalho` e `cargo` como listas, e os períodos de admissão e desligamento) e `EspecificacaoVinculos.java` (`Specification<Vinculo>`):
   - **Combinação**: filtros diferentes com E; valores do mesmo filtro com OU (FR-015).
   - **Não informado**: o valor `NAO_INFORMADO` vira `IS NULL`.
   - **Períodos**: incluem as duas datas; aceitam só uma das datas. Data inicial maior que a final lança `FiltroInvalidoException` (FR-017).
   - **Desligamento**: período informado força `situacao = DESLIGADO` (FR-018).
   - **Busca**: `q` com no mínimo 2 caracteres, normalizado pelo `NormalizadorTexto` e aplicado com `texto_busca LIKE %q%` (FR-019).
   - Teste unitário em `src/test/java/br/edu/unidavi/rhgravatai/comum/filtro/FiltroVinculosTest.java` (RF02).
-- [ ] T014 [P] Criar `src/main/java/br/edu/unidavi/rhgravatai/comum/UltimaAtualizacao.java`, serviço que devolve o `fim` da última carga com `SUCESSO`, ou nulo (FR-013).
-- [ ] T015 [P] Criar `src/main/java/br/edu/unidavi/rhgravatai/comum/ConfiguracaoWeb.java`:
+- [X] T014 [P] Criar `src/main/java/br/edu/unidavi/rhgravatai/comum/UltimaAtualizacao.java`, serviço que devolve o `fim` da última carga com `SUCESSO`, ou nulo (FR-013).
+- [X] T015 [P] Criar `src/main/java/br/edu/unidavi/rhgravatai/comum/ConfiguracaoWeb.java`:
   - CORS só para as origens de `cors.origens` (desenvolvimento do front);
   - título do springdoc "API de Consulta - Dados de RH de Gravataí/RS";
   - Swagger em `/swagger-ui.html`.
-- [ ] T016 [P] Criar `src/test/java/br/edu/unidavi/rhgravatai/privacidade/EsquemaSemCpfTest.java`: depois das migrações, `information_schema.columns` não pode ter coluna cujo nome contenha `cpf` (RNF01, princípio I).
+- [ ] T016 [P] Criar `src/test/java/br/edu/unidavi/rhgravatai/privacidade/EsquemaSemCpfTest.java`: depois das migrações, `information_schema.columns` não pode ter coluna cujo nome contenha `cpf` (RNF01, princípio I). **(escrito; falta rodar com Docker)**
 
 **Ponto de controle**: `mvn verify` passa e a aplicação sobe contra o PostgreSQL do `compose.yaml`.
 
@@ -124,21 +131,21 @@ com `gravados + rejeitados = totalInformado` e nenhum CPF no banco ([quickstart.
 
 ### Testes da História 1
 
-- [ ] T017 [P] [US1] Criar páginas sintéticas da fonte em `src/test/resources/fonte/`. Use só nomes fictícios e CPFs fictícios mascarados (`***.000.000-**`).
+- [X] T017 [P] [US1] Criar páginas sintéticas da fonte em `src/test/resources/fonte/`. Use só nomes fictícios e CPFs fictícios mascarados (`***.000.000-**`).
   - **Páginas válidas**: `pagina-1.json` e `pagina-2.json`, com `totalPaginas` 2 e `totalRegistros` 5. Incluem um "Demitido" com `dataRescisao` e `motivoRescisao`, um registro com `salarioBase` "0,00", um com `nivel` nulo e um com `salarioBase` inválido "abc".
   - **Erros**: `erro-parametro.json` (`{"msg":...,"sis":"WFP","code":"001772"}`) e `limite-429.json` (`{"retorno":{"msg":...,"code":"000989"}}`).
   - **Total que muda**: `pagina-2-total-alterado.json`, com `totalRegistros` 6.
-- [ ] T018 [P] [US1] Criar `src/test/java/br/edu/unidavi/rhgravatai/importacao/tratamento/TratadorRegistroTest.java` (RF01, FR-006, FR-007):
+- [X] T018 [P] [US1] Criar `src/test/java/br/edu/unidavi/rhgravatai/importacao/tratamento/TratadorRegistroTest.java` (RF01, FR-006, FR-007):
   - **Conversões**: "3.905,17" → 3905.17; "29/01/1979" → data; "180:00" → 10800 min; "036:00" → 2160 min.
   - **Situação**: "Demitido" → `DESLIGADO`.
   - **Textos**: vazio e só espaços viram nulo.
   - **Originais**: `valores_originais` guarda os textos recebidos.
   - **Rejeições** (com campo e motivo): matrícula ausente, data "31/02/2026", salário "abc", hora "18h", situação desconhecida.
-- [ ] T019 [P] [US1] Criar `src/test/java/br/edu/unidavi/rhgravatai/importacao/fonte/ClienteFonteTest.java`, com `MockRestServiceServer` e um `Esperador` falso, sem esperar de verdade (RF01, FR-004):
+- [X] T019 [P] [US1] Criar `src/test/java/br/edu/unidavi/rhgravatai/importacao/fonte/ClienteFonteTest.java`, com `MockRestServiceServer` e um `Esperador` falso, sem esperar de verdade (RF01, FR-004):
   - **Parâmetros**: `tipoBusca=3`, `desligamentoInicio=01/01/1900`, `desligamentoFinal` igual à data atual em `dd/MM/yyyy`, e `pagina`.
   - **Novas tentativas**: HTTP 429 seguido de 200 resulta em sucesso; erro em HTTP 200 conta como falha e nova tentativa; 5 falhas seguidas lançam exceção.
   - **Intervalo**: espera mínima de 1100 ms entre requisições.
-- [ ] T020 [US1] Criar `src/test/java/br/edu/unidavi/rhgravatai/importacao/carga/CargaIntegracaoTest.java`, herdando `TesteIntegracaoBase` e usando as páginas do T017 (RF01, FR-003, FR-009 a FR-011). Cenários:
+- [ ] T020 [US1] Criar `src/test/java/br/edu/unidavi/rhgravatai/importacao/carga/CargaIntegracaoTest.java`, herdando `TesteIntegracaoBase` e usando as páginas do T017 (RF01, FR-003, FR-009 a FR-011). Cenários: **(escrito; falta rodar com Docker)**
   - **(a) Carga completa**: `SUCESSO`, com 4 gravados e 1 rejeitado conciliados.
   - **(b) Total alterado**: `INCONSISTENTE`, sem alterar a tabela `vinculo`.
   - **(c) Falha da fonte**: `FALHA`, com os dados anteriores intactos.
@@ -148,23 +155,23 @@ com `gravados + rejeitados = totalInformado` e nenhum CPF no banco ([quickstart.
 
 ### Implementação da História 1
 
-- [ ] T021 [P] [US1] Criar `src/main/java/br/edu/unidavi/rhgravatai/importacao/fonte/RegistroFonte.java`, record com `@JsonIgnoreProperties(ignoreUnknown = true)` e **sem campo `cpf`**. Campos: `entidade`, `matricula`, `nome`, `situacao`, `admissao`, `dataRescisao`, `motivoRescisao`, `regime`, `classificacao`, `formaInvestidura`, `centroCusto`, `localTrabalho`, `cargo`, `funcao`, `nivel`, `salarioBase`, `horario`, `horasMensais`, `horasSemanais`, todos `String`. Criar também `PaginaFonte.java` (`registros`, `paginaAtual` String, `totalPaginas` int, `totalRegistros` int) (RF01, RNF01).
-- [ ] T022 [US1] Criar `src/main/java/br/edu/unidavi/rhgravatai/importacao/fonte/ClienteFonte.java` e `Esperador.java` (interface com implementação real por `Thread.sleep`), com `RestClient` (RF01, FR-004):
+- [X] T021 [P] [US1] Criar `src/main/java/br/edu/unidavi/rhgravatai/importacao/fonte/RegistroFonte.java`, record com `@JsonIgnoreProperties(ignoreUnknown = true)` e **sem campo `cpf`**. Campos: `entidade`, `matricula`, `nome`, `situacao`, `admissao`, `dataRescisao`, `motivoRescisao`, `regime`, `classificacao`, `formaInvestidura`, `centroCusto`, `localTrabalho`, `cargo`, `funcao`, `nivel`, `salarioBase`, `horario`, `horasMensais`, `horasSemanais`, todos `String`. Criar também `PaginaFonte.java` (`registros`, `paginaAtual` String, `totalPaginas` int, `totalRegistros` int) (RF01, RNF01).
+- [X] T022 [US1] Criar `src/main/java/br/edu/unidavi/rhgravatai/importacao/fonte/ClienteFonte.java` e `Esperador.java` (interface com implementação real por `Thread.sleep`), com `RestClient` (RF01, FR-004):
   - **Parâmetros**: os do T019.
   - **Timeout**: `fonte.timeout-s`.
   - **Erro**: resposta sem `registros` conta como erro.
   - **Novas tentativas**: em 429, 5xx, timeout ou erro, até `fonte.max-tentativas`, com esperas de 2, 4, 8, 16 e 32 s; esgotadas, lança `FonteIndisponivelException`.
   - **Intervalo**: respeita `fonte.intervalo-minimo-ms` entre requisições.
   - **Logs**: NUNCA registrar o corpo da resposta; registrar só página, status HTTP e código de erro.
-- [ ] T023 [P] [US1] Criar `src/main/java/br/edu/unidavi/rhgravatai/importacao/tratamento/TratadorRegistro.java`, `RegistroTratado.java` e `Rejeicao.java`, aplicando as regras da tabela "Regras de validação e conversão" do [data-model.md](data-model.md) (RF01, FR-006, FR-007):
+- [X] T023 [P] [US1] Criar `src/main/java/br/edu/unidavi/rhgravatai/importacao/tratamento/TratadorRegistro.java`, `RegistroTratado.java` e `Rejeicao.java`, aplicando as regras da tabela "Regras de validação e conversão" do [data-model.md](data-model.md) (RF01, FR-006, FR-007):
   - `matricula` não vazio;
   - `situacao` em `Trabalhando|Afastado|Demitido`;
   - datas `dd/MM/yyyy` com `ResolverStyle.STRICT`;
   - `salarioBase` casando com `^\d{1,3}(\.\d{3})*,\d{2}$`;
   - horas casando com `^\d+:\d{2}$`;
   - `texto_busca` calculado com o `NormalizadorTexto` sobre nome, cargo e matrícula.
-- [ ] T024 [P] [US1] Criar `VinculoStaging.java`, `RegistroRejeitado.java` e `MudancaVinculo.java`, com seus repositórios, em `src/main/java/br/edu/unidavi/rhgravatai/importacao/carga/` (RF01). `RegistroRejeitado.valorRecebido` guarda só o valor do campo com problema, nunca o registro inteiro.
-- [ ] T025 [US1] Criar `src/main/java/br/edu/unidavi/rhgravatai/importacao/carga/ExecutorCarga.java` (RF01, FR-003, FR-009). Passos:
+- [X] T024 [P] [US1] Criar `VinculoStaging.java`, `RegistroRejeitado.java` e `MudancaVinculo.java`, com seus repositórios, em `src/main/java/br/edu/unidavi/rhgravatai/importacao/carga/` (RF01). `RegistroRejeitado.valorRecebido` guarda só o valor do campo com problema, nunca o registro inteiro.
+- [X] T025 [US1] Criar `src/main/java/br/edu/unidavi/rhgravatai/importacao/carga/ExecutorCarga.java` (RF01, FR-003, FR-009). Passos:
   1. Lançar `CargaEmAndamentoException` se já houver carga `EM_ANDAMENTO`.
   2. Criar a carga `EM_ANDAMENTO` com a origem e o período `01/01/1900` até hoje.
   3. Limpar `vinculo_staging`.
@@ -173,24 +180,24 @@ com `gravados + rejeitados = totalInformado` e nenhum CPF no banco ([quickstart.
   6. Conciliar. A carga fica `INCONSISTENTE`, com mensagem, se os dois totais diferirem ou se matrículas distintas no staging mais rejeitados for diferente de `total_informado`.
   7. Se `FonteIndisponivelException` ocorrer em qualquer passo, a carga fica `FALHA`, com a mensagem.
   8. Com a conciliação correta, chamar o `PublicadorCarga`.
-- [ ] T026 [US1] Criar `src/main/java/br/edu/unidavi/rhgravatai/importacao/carga/PublicadorCarga.java`, com uma única `@Transactional`, usando SQL em lote (`INSERT ... ON CONFLICT (entidade, matricula) DO UPDATE`) (RF01, FR-008, FR-010, FR-011). Passos:
+- [X] T026 [US1] Criar `src/main/java/br/edu/unidavi/rhgravatai/importacao/carga/PublicadorCarga.java`, com uma única `@Transactional`, usando SQL em lote (`INSERT ... ON CONFLICT (entidade, matricula) DO UPDATE`) (RF01, FR-008, FR-010, FR-011). Passos:
   1. **Mudanças**: comparar staging com `vinculo` nos atributos `situacao`, `regime`, `secretaria`, `local_trabalho`, `cargo`, `funcao`, `nivel`, `salario_base`, `horas_mensais_min`, `horas_semanais_min` e `data_desligamento`, e gravar `mudanca_vinculo`. Não gravar na primeira carga, quando `vinculo` está vazia.
   2. **Atualização**: inserir e atualizar `vinculo`, preenchendo `ultima_carga_id` e `visto_por_ultimo_em`, e `primeira_carga_id` nos novos.
   3. **Ausentes**: marcar `ativo_na_fonte=false` em quem não veio, registrando mudança em `ativo_na_fonte`; quem voltou recebe `true`.
   4. **Contadores**: preencher `novos`, `alterados` e `nao_encontrados`.
   5. **Pós-publicação**: chamar todos os beans `AposPublicacao` (interface criada aqui; os alertas da US5 a implementam).
   6. **Encerramento**: marcar a carga `SUCESSO` com `fim`.
-- [ ] T027 [P] [US1] Criar `src/main/java/br/edu/unidavi/rhgravatai/importacao/carga/RecuperadorCargasInterrompidas.java`: no `ApplicationReadyEvent`, marcar cargas `EM_ANDAMENTO` como `FALHA`, com a mensagem "interrompida" (RF01).
-- [ ] T028 [US1] Criar `src/main/java/br/edu/unidavi/rhgravatai/importacao/agendamento/AgendadorCarga.java`, com `@Scheduled(cron = "${importacao.cron}", zone = "America/Sao_Paulo")` e origem `AGENDADA` (RF01, FR-012).
-- [ ] T029 [US1] Criar `src/main/java/br/edu/unidavi/rhgravatai/importacao/agendamento/AdminCargaController.java` (RF01):
+- [X] T027 [P] [US1] Criar `src/main/java/br/edu/unidavi/rhgravatai/importacao/carga/RecuperadorCargasInterrompidas.java`: no `ApplicationReadyEvent`, marcar cargas `EM_ANDAMENTO` como `FALHA`, com a mensagem "interrompida" (RF01).
+- [X] T028 [US1] Criar `src/main/java/br/edu/unidavi/rhgravatai/importacao/agendamento/AgendadorCarga.java`, com `@Scheduled(cron = "${importacao.cron}", zone = "America/Sao_Paulo")` e origem `AGENDADA` (RF01, FR-012).
+- [X] T029 [US1] Criar `src/main/java/br/edu/unidavi/rhgravatai/importacao/agendamento/AdminCargaController.java` (RF01):
   - **`POST /api/v1/admin/cargas`**: inicia a carga com `@Async` e origem `MANUAL`; responde 202 com a `Carga`, ou 409.
   - **`GET /api/v1/admin/cargas`**: paginado, da mais recente para a mais antiga.
   - **Segurança**: cabeçalho `X-Admin-Token` comparado com `MessageDigest.isEqual` a `admin.token`. Responde 401 se o token estiver ausente ou errado, e 401 sempre que `admin.token` não estiver configurado.
   - **Esquemas**: `Carga` do contrato.
-- [ ] T030 [US1] Criar `src/main/java/br/edu/unidavi/rhgravatai/status/StatusController.java` e `StatusService.java`, com `GET /api/v1/status` conforme o esquema `Status` do contrato (FR-013):
+- [X] T030 [US1] Criar `src/main/java/br/edu/unidavi/rhgravatai/status/StatusController.java` e `StatusService.java`, com `GET /api/v1/status` conforme o esquema `Status` do contrato (FR-013):
   - `ultimaAtualizacao`, `totalVinculos`, `totalAtivos` (situação `TRABALHANDO` ou `AFASTADO` e `ativo_na_fonte`) e `fonte`;
   - `teto` lido de `teto_valor` e `teto_origem` da última carga com sucesso; `SUSPENSA` enquanto a US5 não existir.
-- [ ] T031 [US1] Registrar logs da carga em `ExecutorCarga` e `PublicadorCarga`: início, progresso a cada 50 páginas e fim com totais e status. Nunca registrar conteúdo de registros (RNF01).
+- [X] T031 [US1] Registrar logs da carga em `ExecutorCarga` e `PublicadorCarga`: início, progresso a cada 50 páginas e fim com totais e status. Nunca registrar conteúdo de registros (RNF01).
 
 **Ponto de controle (meta 16/10)**: carga real concluída localmente ([quickstart.md](quickstart.md) §3) e `CargaIntegracaoTest` passando.
 
@@ -205,8 +212,8 @@ esperado em menos de 3 s ([quickstart.md](quickstart.md) §4).
 
 ### Testes da História 2
 
-- [ ] T032 [P] [US2] Criar `src/test/resources/dados/vinculos-exemplo.sql`, com cerca de 30 vínculos fictícios cobrindo: as 3 situações, 3 regimes, 3 secretarias, nomes e cargos com acento, campos nulos, desligados com datas e uma carga `SUCESSO`. Será reutilizado pelas US2 a US6.
-- [ ] T033 [US2] Criar `src/test/java/br/edu/unidavi/rhgravatai/vinculo/ConsultaVinculoIntegracaoTest.java` (RF02, FR-014 a FR-022):
+- [X] T032 [P] [US2] Criar `src/test/resources/dados/vinculos-exemplo.sql`, com cerca de 30 vínculos fictícios cobrindo: as 3 situações, 3 regimes, 3 secretarias, nomes e cargos com acento, campos nulos, desligados com datas e uma carga `SUCESSO`. Será reutilizado pelas US2 a US6.
+- [ ] T033 [US2] Criar `src/test/java/br/edu/unidavi/rhgravatai/vinculo/ConsultaVinculoIntegracaoTest.java` (RF02, FR-014 a FR-022): **(escrito; falta rodar com Docker)**
   - **Filtros**: os 8 filtros isolados; combinação E entre filtros e OU dentro do mesmo; `NAO_INFORMADO`.
   - **Busca**: `q=jose` encontra "JOSÉ".
   - **Períodos**: filtro de desligamento retorna só `DESLIGADO`; período invertido responde 400 com `detail` em português.
@@ -215,14 +222,14 @@ esperado em menos de 3 s ([quickstart.md](quickstart.md) §4).
 
 ### Implementação da História 2
 
-- [ ] T034 [P] [US2] Criar `src/main/java/br/edu/unidavi/rhgravatai/vinculo/VinculoResposta.java` (record conforme o esquema `Vinculo` do contrato; `horasMensais = horas_mensais_min / 60.0`) e `src/main/java/br/edu/unidavi/rhgravatai/comum/PaginaResposta.java` (genérico, com `itens`, `total`, `pagina`, `tamanho` e `ultimaAtualizacao`).
-- [ ] T035 [US2] Criar `src/main/java/br/edu/unidavi/rhgravatai/vinculo/ConsultaVinculoService.java` (RF02):
+- [X] T034 [P] [US2] Criar `src/main/java/br/edu/unidavi/rhgravatai/vinculo/VinculoResposta.java` (record conforme o esquema `Vinculo` do contrato; `horasMensais = horas_mensais_min / 60.0`) e `src/main/java/br/edu/unidavi/rhgravatai/comum/PaginaResposta.java` (genérico, com `itens`, `total`, `pagina`, `tamanho` e `ultimaAtualizacao`).
+- [X] T035 [US2] Criar `src/main/java/br/edu/unidavi/rhgravatai/vinculo/ConsultaVinculoService.java` (RF02):
   - aplica a `EspecificacaoVinculos`;
   - ordenação só pelos campos do padrão do contrato (`nome|matricula|situacao|regime|secretaria|cargo|nivel|salarioBase|dataAdmissao|dataDesligamento`), com padrão `nome,asc`;
   - `tamanho` entre 1 e 100, padrão 20;
   - `pagina` começando em 0.
-- [ ] T036 [US2] Criar `src/main/java/br/edu/unidavi/rhgravatai/vinculo/VinculoController.java` com `GET /api/v1/vinculos`, aceitando parâmetros repetidos para as listas e convertendo para `FiltroVinculos` (RF02, FR-014, FR-022).
-- [ ] T037 [US2] Criar `src/main/java/br/edu/unidavi/rhgravatai/vinculo/OpcoesFiltroService.java` e adicionar `GET /api/v1/filtros/opcoes` ao `VinculoController`: `GROUP BY` em `situacao`, `regime`, `classificacao`, `secretaria`, `local_trabalho` e `cargo`, incluindo os nulos, ordenado por valor (RF02, FR-016).
+- [X] T036 [US2] Criar `src/main/java/br/edu/unidavi/rhgravatai/vinculo/VinculoController.java` com `GET /api/v1/vinculos`, aceitando parâmetros repetidos para as listas e convertendo para `FiltroVinculos` (RF02, FR-014, FR-022).
+- [X] T037 [US2] Criar `src/main/java/br/edu/unidavi/rhgravatai/vinculo/OpcoesFiltroService.java` e adicionar `GET /api/v1/filtros/opcoes` ao `VinculoController`: `GROUP BY` em `situacao`, `regime`, `classificacao`, `secretaria`, `local_trabalho` e `cargo`, incluindo os nulos, ordenado por valor (RF02, FR-016).
 
 **Ponto de controle (meta 16/10)**: MVP pronto (importação e consulta).
 
