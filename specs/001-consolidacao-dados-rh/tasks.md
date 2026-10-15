@@ -93,7 +93,7 @@ records e repositórios JDBC.
   - **`parametro_teto`**: `valor numeric(12,2) NOT NULL CHECK (valor > 0)` e `vigencia_inicio date NOT NULL UNIQUE`.
   - **`alerta`**: `regra` com CHECK em (`TETO`, `FORA_PADRAO`) e único `(vinculo_id, regra)`.
   - **CPF**: nenhuma coluna de CPF em nenhuma tabela.
-- [ ] T008 [P] Criar a base de testes de integração `src/test/java/br/edu/unidavi/rhgravatai/TesteIntegracaoBase.java`: `@SpringBootTest` com um contêiner `PostgreSQLContainer("postgres:17")` anotado com `@ServiceConnection`, compartilhado entre as classes. **(escrito; falta rodar com Docker)**
+- [X] T008 [P] Criar a base de testes de integração `src/test/java/br/edu/unidavi/rhgravatai/TesteIntegracaoBase.java`: `@SpringBootTest` com um contêiner `PostgreSQLContainer("postgres:17")` anotado com `@ServiceConnection`, compartilhado entre as classes.
 - [X] T009 [P] Criar `src/main/java/br/edu/unidavi/rhgravatai/comum/NormalizadorTexto.java`:
   - remove espaços nas pontas, converte para minúsculas e remove acentos (`Normalizer.Form.NFD` mais remoção de marcas);
   - devolve nulo para texto vazio.
@@ -116,7 +116,7 @@ records e repositórios JDBC.
   - CORS só para as origens de `cors.origens` (desenvolvimento do front);
   - título do springdoc "API de Consulta - Dados de RH de Gravataí/RS";
   - Swagger em `/swagger-ui.html`.
-- [ ] T016 [P] Criar `src/test/java/br/edu/unidavi/rhgravatai/privacidade/EsquemaSemCpfTest.java`: depois das migrações, `information_schema.columns` não pode ter coluna cujo nome contenha `cpf` (RNF01, princípio I). **(escrito; falta rodar com Docker)**
+- [X] T016 [P] Criar `src/test/java/br/edu/unidavi/rhgravatai/privacidade/EsquemaSemCpfTest.java`: depois das migrações, `information_schema.columns` não pode ter coluna cujo nome contenha `cpf` (RNF01, princípio I).
 
 **Ponto de controle**: `mvn verify` passa e a aplicação sobe contra o PostgreSQL do `compose.yaml`.
 
@@ -145,7 +145,7 @@ com `gravados + rejeitados = totalInformado` e nenhum CPF no banco ([quickstart.
   - **Parâmetros**: `tipoBusca=3`, `desligamentoInicio=01/01/1900`, `desligamentoFinal` igual à data atual em `dd/MM/yyyy`, e `pagina`.
   - **Novas tentativas**: HTTP 429 seguido de 200 resulta em sucesso; erro em HTTP 200 conta como falha e nova tentativa; 5 falhas seguidas lançam exceção.
   - **Intervalo**: espera mínima de 1100 ms entre requisições.
-- [ ] T020 [US1] Criar `src/test/java/br/edu/unidavi/rhgravatai/importacao/carga/CargaIntegracaoTest.java`, herdando `TesteIntegracaoBase` e usando as páginas do T017 (RF01, FR-003, FR-009 a FR-011). Cenários: **(escrito; falta rodar com Docker)**
+- [X] T020 [US1] Criar `src/test/java/br/edu/unidavi/rhgravatai/importacao/carga/CargaIntegracaoTest.java`, herdando `TesteIntegracaoBase` e usando as páginas do T017 (RF01, FR-003, FR-009 a FR-011). Cenários:
   - **(a) Carga completa**: `SUCESSO`, com 4 gravados e 1 rejeitado conciliados.
   - **(b) Total alterado**: `INCONSISTENTE`, sem alterar a tabela `vinculo`.
   - **(c) Falha da fonte**: `FALHA`, com os dados anteriores intactos.
@@ -213,7 +213,7 @@ esperado em menos de 3 s ([quickstart.md](quickstart.md) §4).
 ### Testes da História 2
 
 - [X] T032 [P] [US2] Criar `src/test/resources/dados/vinculos-exemplo.sql`, com cerca de 30 vínculos fictícios cobrindo: as 3 situações, 3 regimes, 3 secretarias, nomes e cargos com acento, campos nulos, desligados com datas e uma carga `SUCESSO`. Será reutilizado pelas US2 a US6.
-- [ ] T033 [US2] Criar `src/test/java/br/edu/unidavi/rhgravatai/vinculo/ConsultaVinculoIntegracaoTest.java` (RF02, FR-014 a FR-022): **(escrito; falta rodar com Docker)**
+- [X] T033 [US2] Criar `src/test/java/br/edu/unidavi/rhgravatai/vinculo/ConsultaVinculoIntegracaoTest.java` (RF02, FR-014 a FR-022):
   - **Filtros**: os 8 filtros isolados; combinação E entre filtros e OU dentro do mesmo; `NAO_INFORMADO`.
   - **Busca**: `q=jose` encontra "JOSÉ".
   - **Períodos**: filtro de desligamento retorna só `DESLIGADO`; período invertido responde 400 com `detail` em português.

@@ -110,6 +110,7 @@ public class ExecutorCarga {
                     cargaId, gravados, rejeitados, concluida.novos(), concluida.alterados(), concluida.naoEncontrados());
         } catch (RuntimeException e) {
             String mensagem = Objects.requireNonNullElse(e.getMessage(), e.getClass().getSimpleName());
+            preparacao.limpar();
             cargas.encerrarSemPublicar(cargaId, StatusCarga.FALHA, mensagem);
             log.error("Carga {} falhou: {}", cargaId, mensagem);
         }
