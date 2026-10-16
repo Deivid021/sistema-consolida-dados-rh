@@ -18,8 +18,11 @@ Observado em consultas ao serviço público em 2026-10-13 e 2026-10-14.
 - **Volume**: 8.831 ativos; `tipoBusca=3` de 01/01/1900 até hoje retorna 55.206 registros
   em 553 páginas. Conferido: `tipoBusca=3` = ativos + desligados do período
   (9.819 = 8.831 + 988 em 2026).
-- **Limite de uso**: 1 requisição por segundo. Excesso retorna HTTP 429 com
-  `{"retorno":{"msg":...,"code":"000989"}}`.
+- **Limite de uso**: 1 requisição por segundo **e 1.000 requisições por dia** (descoberto em
+  2026-10-15, na segunda carga real). Os dois excessos retornam HTTP 429 com
+  `{"retorno":{"msg":...,"code":"000989"}}`; só o texto diferencia "por segundo" de "por dia".
+  Uma carga completa usa cerca de 553 requisições, então cabe **uma carga completa por dia**.
+  No limite diário o cliente interrompe a carga na hora, sem novas tentativas.
 - **Erros disfarçados**: parâmetro inválido retorna HTTP 200 com `{"msg","sis","code"}` e
   sem `registros`.
 - **Campos**: `entidade`, `matricula` (`"20-01"`), `nome`, `cpf` (mascarado,
