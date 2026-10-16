@@ -139,6 +139,7 @@ mudança de prazo deve ser registrada como Solicitação de Mudança (constitui�
 | Risco | Resposta |
 |-------|----------|
 | A fonte cai ou muda o formato | Os dados da última carga continuam publicados. A falha fica registrada em `carga`. Para a apresentação, ter uma carga bem-sucedida feita no dia anterior. |
+| Limite de 1.000 requisições por dia na fonte (uma carga usa cerca de 553) | Uma carga completa por dia, de madrugada. Não disparar carga manual no mesmo dia, inclusive na apresentação. No limite diário a carga para na hora e os dados anteriores continuam publicados. Melhoria futura: carga incremental (ativos e desligados recentes por dia, histórico completo por semana). |
 | Páginas lentas (até 17 s) | Tempo limite de 90 s por página e novas tentativas. A carga roda de madrugada. |
 | Crédito AWS acaba | Alerta no Budgets em US$ 35 e US$ 45. Desligar a instância depois da avaliação, se ninguém assumir o custo. |
 | Pouco tempo para o front-end (3 dias) | Contrato fechado antes; back-end completo até 17/10 para o front começar com a API pronta. |

@@ -97,6 +97,19 @@ class ClienteFonteTest {
     }
 
     @Test
+    void limiteDiarioInterrompeSemInsistir() throws IOException {
+        servidor.expect(times(1), method(HttpMethod.GET))
+                .andRespond(withStatus(HttpStatus.TOO_MANY_REQUESTS).body(json("limite-diario.json"))
+                        .contentType(MediaType.APPLICATION_JSON));
+
+        assertThatThrownBy(() -> cliente.buscarPagina(448, INICIO, FIM))
+                .isInstanceOf(FonteIndisponivelException.class)
+                .hasMessage("Página 448: limite diário de 1000 requisições da fonte atingido. A carga foi interrompida.");
+        assertThat(esperas).filteredOn(d -> d.toMillis() >= 2000).isEmpty();
+        servidor.verify();
+    }
+
+    @Test
     void esperaOIntervaloMinimoEntreRequisicoes() throws IOException {
         servidor.expect(times(2), method(HttpMethod.GET))
                 .andRespond(withSuccess(json("pagina-1.json"), MediaType.APPLICATION_JSON));

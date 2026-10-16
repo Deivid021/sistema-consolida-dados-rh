@@ -2,6 +2,7 @@ package br.edu.unidavi.rhgravatai.importacao.fonte;
 
 import java.net.URI;
 import java.net.http.HttpClient;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -18,8 +19,9 @@ import org.springframework.web.client.RestClientException;
  *
  * <p>Comportamento da fonte (research.md §1): limite de 1 requisição por segundo, com HTTP 429
  * no excesso; erros de parâmetro chegam com HTTP 200 e sem {@code registros}; páginas podem
- * levar até 17 s. Por isso: intervalo mínimo entre requisições, novas tentativas com espera
- * crescente e falha só depois de esgotar as tentativas.
+ * levar até 17 s; há também um limite de 1.000 requisições por dia, e uma carga completa usa
+ * cerca de 553. Por isso: intervalo mínimo entre requisições, novas tentativas com espera
+ * crescente, falha só depois de esgotar as tentativas e falha imediata no limite diário.
  *
  * <p>O corpo das respostas nunca é registrado em log, porque contém dados pessoais.
  */
@@ -27,6 +29,8 @@ import org.springframework.web.client.RestClientException;
 public class ClienteFonte implements FontePessoal {
 
     private static final Logger log = LoggerFactory.getLogger(ClienteFonte.class);
+    /** Limite diário informado pela fonte (mensagem do HTTP 429, código 000989). */
+    static final int LIMITE_DIARIO = 1000;
     private static final DateTimeFormatter DATA_FONTE = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
     private final RestClient rest;
@@ -60,6 +64,9 @@ public class ClienteFonte implements FontePessoal {
             try {
                 Tentativa resultado = rest.get().uri(uri).exchange((requisicao, resposta) -> {
                     int status = resposta.getStatusCode().value();
+                    if (status == 429 && limiteDiario(resposta.getBody().readAllBytes())) {
+                        return Tentativa.limiteDiarioAtingido();
+                    }
                     if (resposta.getStatusCode().isError()) {
                         return Tentativa.falha("HTTP " + status);
                     }
@@ -71,6 +78,11 @@ public class ClienteFonte implements FontePessoal {
                 });
                 if (resultado.pagina() != null) {
                     return resultado.pagina();
+                }
+                if (resultado.limiteDiario()) {
+                    // Insistir só gastaria a cota do dia seguinte; a próxima carga agendada tenta de novo
+                    throw new FonteIndisponivelException("Página " + pagina + ": limite diário de "
+                            + LIMITE_DIARIO + " requisições da fonte atingido. A carga foi interrompida.");
                 }
                 ultimoErro = resultado.erro();
             } catch (RestClientException e) {
@@ -95,6 +107,12 @@ public class ClienteFonte implements FontePessoal {
         ultimaRequisicaoNanos = System.nanoTime();
     }
 
+    /** A fonte diferencia os limites só pelo texto: "por segundo" ou "por dia". */
+    private static boolean limiteDiario(byte[] corpo) {
+        String texto = new String(corpo, StandardCharsets.UTF_8);
+        return texto.contains("por dia");
+    }
+
     private static RestClient criarRestClient(PropriedadesFonte propriedades) {
         HttpClient http = HttpClient.newBuilder()
                 .connectTimeout(Duration.ofSeconds(30))
@@ -108,14 +126,18 @@ public class ClienteFonte implements FontePessoal {
                 .build();
     }
 
-    private record Tentativa(PaginaFonte pagina, String erro) {
+    private record Tentativa(PaginaFonte pagina, String erro, boolean limiteDiario) {
 
         static Tentativa sucesso(PaginaFonte pagina) {
-            return new Tentativa(pagina, null);
+            return new Tentativa(pagina, null, false);
         }
 
         static Tentativa falha(String erro) {
-            return new Tentativa(null, erro);
+            return new Tentativa(null, erro, false);
+        }
+
+        static Tentativa limiteDiarioAtingido() {
+            return new Tentativa(null, "limite diário", true);
         }
     }
 }
