@@ -4,6 +4,7 @@ import br.edu.unidavi.rhgravatai.comum.PaginaResposta;
 import br.edu.unidavi.rhgravatai.comum.Paginacao;
 import br.edu.unidavi.rhgravatai.comum.filtro.FiltroVinculos;
 import br.edu.unidavi.rhgravatai.vinculo.OpcoesFiltroService.OpcoesFiltro;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -25,7 +26,7 @@ public class VinculoController {
 
     /** Os filtros vêm dos parâmetros da URL; listas aceitam o parâmetro repetido. */
     @GetMapping("/vinculos")
-    public PaginaResposta<VinculoResposta> listar(@ModelAttribute FiltroVinculos filtro,
+    public PaginaResposta<VinculoResposta> listar(@ParameterObject @ModelAttribute FiltroVinculos filtro,
                                                   @RequestParam(required = false) Integer pagina,
                                                   @RequestParam(required = false) Integer tamanho,
                                                   @RequestParam(required = false) String ordenacao) {
