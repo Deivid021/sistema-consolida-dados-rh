@@ -3,6 +3,7 @@ package br.edu.unidavi.rhgravatai.exportacao;
 import br.edu.unidavi.rhgravatai.alerta.RegraAlerta;
 import br.edu.unidavi.rhgravatai.comum.filtro.FiltroVinculos;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -26,7 +27,7 @@ public class ExportacaoController {
     @GetMapping("/api/v1/exportacoes/{relatorio}")
     public void exportar(@PathVariable String relatorio,
                          @RequestParam(required = false) String formato,
-                         @ModelAttribute FiltroVinculos filtro,
+                         @ParameterObject @ModelAttribute FiltroVinculos filtro,
                          @RequestParam(required = false) String ordenacao,
                          @RequestParam(required = false) RegraAlerta regra,
                          HttpServletResponse resposta) {

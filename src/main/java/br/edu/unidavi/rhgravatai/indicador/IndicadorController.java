@@ -5,6 +5,7 @@ import br.edu.unidavi.rhgravatai.comum.Paginacao;
 import br.edu.unidavi.rhgravatai.comum.filtro.FiltroVinculos;
 import br.edu.unidavi.rhgravatai.indicador.QuadroService.Quadro;
 import br.edu.unidavi.rhgravatai.indicador.SalarioService.GrupoSalarial;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -25,12 +26,12 @@ public class IndicadorController {
     }
 
     @GetMapping("/quadro")
-    public Quadro quadro(@ModelAttribute FiltroVinculos filtro) {
+    public Quadro quadro(@ParameterObject @ModelAttribute FiltroVinculos filtro) {
         return quadro.calcular(filtro);
     }
 
     @GetMapping("/salarios")
-    public PaginaResposta<GrupoSalarial> salarios(@ModelAttribute FiltroVinculos filtro,
+    public PaginaResposta<GrupoSalarial> salarios(@ParameterObject @ModelAttribute FiltroVinculos filtro,
                                                   @RequestParam(required = false) Integer pagina,
                                                   @RequestParam(required = false) Integer tamanho,
                                                   @RequestParam(required = false) String ordenacao) {
