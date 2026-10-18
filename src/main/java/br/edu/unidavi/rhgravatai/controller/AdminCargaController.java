@@ -3,9 +3,10 @@ package br.edu.unidavi.rhgravatai.controller;
 import br.edu.unidavi.rhgravatai.dto.ListaCargasResposta;
 import br.edu.unidavi.rhgravatai.dto.Paginacao;
 import br.edu.unidavi.rhgravatai.exception.AcessoNegadoException;
-import br.edu.unidavi.rhgravatai.model.OrigemCarga;
 import br.edu.unidavi.rhgravatai.model.Carga;
+import br.edu.unidavi.rhgravatai.model.OrigemCarga;
 import br.edu.unidavi.rhgravatai.service.CargaService;
+import io.swagger.v3.oas.annotations.Hidden;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.util.concurrent.Executor;
@@ -21,9 +22,11 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * Operação da carga (RF01): disparo manual, para a carga inicial e demonstrações, e
- * acompanhamento. Protegido pelo cabeçalho X-Admin-Token.
+ * Operação da carga (RF01): disparo manual, para a carga inicial, e acompanhamento. Protegido
+ * pelo cabeçalho X-Admin-Token e fora do Swagger, porque é de uso interno: a carga roda sozinha
+ * todo dia às 02:00 e cada carga gasta cerca de 553 das 1.000 requisições diárias da fonte.
  */
+@Hidden
 @RestController
 @RequestMapping("/api/v1/admin/cargas")
 public class AdminCargaController {

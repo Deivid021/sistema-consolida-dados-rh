@@ -36,7 +36,9 @@ ADMIN_TOKEN=token-local mvn spring-boot:run     # API em http://localhost:8080
 
 - Swagger: <http://localhost:8080/swagger-ui.html>
 - Situação dos dados: <http://localhost:8080/api/v1/status>
-- Primeira carga (cerca de 12 minutos):
+- Primeira carga (cerca de 12 minutos). As rotas `/admin/cargas` ficam fora do Swagger por serem
+  de uso interno: a carga roda sozinha todo dia às 02:00, e cada carga gasta cerca de 553 das
+  1.000 requisições diárias permitidas pela fonte. Não dispare mais de uma por dia.
   ```bash
   curl -X POST -H "X-Admin-Token: token-local" http://localhost:8080/api/v1/admin/cargas
   curl -H "X-Admin-Token: token-local" http://localhost:8080/api/v1/admin/cargas   # acompanhar

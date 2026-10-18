@@ -3,6 +3,7 @@ package br.edu.unidavi.rhgravatai.dto;
 import br.edu.unidavi.rhgravatai.exception.FiltroInvalidoException;
 import br.edu.unidavi.rhgravatai.model.Situacao;
 import br.edu.unidavi.rhgravatai.util.NormalizadorTexto;
+import io.swagger.v3.oas.annotations.Parameter;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -18,16 +19,28 @@ import java.util.List;
  * desligados; a busca por texto ignora maiúsculas e acentos.
  */
 public record FiltroVinculos(
+        @Parameter(description = "Busca em nome, cargo e matrícula, sem diferenciar maiúsculas e acentos "
+                + "(mínimo 2 caracteres).", example = "professor")
         String q,
+        @Parameter(description = "Situação; repita o parâmetro para mais de uma.")
         List<Situacao> situacao,
+        @Parameter(description = "Regime (ex.: ESTATUTARIO, CLT, APOSENTADO). Valores em /filtros/opcoes.")
         List<String> regime,
+        @Parameter(description = "Classificação (ex.: PENSIONISTA). NAO_INFORMADO para os sem classificação.")
         List<String> classificacao,
+        @Parameter(description = "Secretaria (centro de custo), com o nome exato de /filtros/opcoes.")
         List<String> secretaria,
+        @Parameter(description = "Local de trabalho, com o nome exato de /filtros/opcoes.")
         List<String> localTrabalho,
+        @Parameter(description = "Cargo, com o nome exato de /filtros/opcoes.")
         List<String> cargo,
+        @Parameter(description = "Admitidos a partir desta data (yyyy-MM-dd).")
         LocalDate admissaoInicio,
+        @Parameter(description = "Admitidos até esta data (yyyy-MM-dd).")
         LocalDate admissaoFim,
+        @Parameter(description = "Desligados a partir desta data (yyyy-MM-dd); retorna só desligados.")
         LocalDate desligamentoInicio,
+        @Parameter(description = "Desligados até esta data (yyyy-MM-dd); retorna só desligados.")
         LocalDate desligamentoFim) {
 
     public static final String NAO_INFORMADO = "NAO_INFORMADO";
