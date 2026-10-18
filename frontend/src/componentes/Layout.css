@@ -1,0 +1,134 @@
+.layout {
+  display: grid;
+  grid-template-columns: var(--largura-indice) minmax(0, 1fr);
+  min-height: 100vh;
+}
+
+.pular {
+  position: absolute;
+  left: var(--e-4);
+  top: -3rem;
+  padding: var(--e-2) var(--e-4);
+  background: var(--caneta);
+  color: #fff;
+  z-index: 10;
+}
+
+.pular:focus {
+  top: var(--e-4);
+}
+
+/* Índice: a margem do documento, recuada e fixa */
+.indice {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  gap: var(--e-8);
+  padding: var(--e-8) var(--e-6);
+  border-right: 1px solid var(--pauta);
+}
+
+.indice__marca {
+  display: flex;
+  flex-direction: column;
+  gap: var(--e-1);
+}
+
+.indice__orgao {
+  font-size: var(--t-pequeno);
+  color: var(--tinta-suave);
+}
+
+.indice__titulo {
+  font-size: var(--t-sub);
+  font-weight: 700;
+  font-stretch: var(--largura-titulo);
+  line-height: 1.1;
+}
+
+.indice__lista {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.indice__link {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--e-2);
+  padding: var(--e-2) 0 var(--e-2) var(--e-3);
+  border-left: 3px solid transparent;
+  color: var(--tinta-suave);
+  text-decoration: none;
+}
+
+.indice__link:hover {
+  color: var(--tinta);
+  text-decoration: none;
+}
+
+.indice__link.active {
+  border-left-color: var(--caneta);
+  color: var(--tinta);
+  font-weight: 600;
+}
+
+.indice__contador {
+  min-width: 1.5rem;
+  padding: 0 var(--e-1);
+  border-radius: 999px;
+  background: var(--alerta);
+  color: #fff;
+  font-size: var(--t-legenda);
+  font-weight: 600;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.conteudo {
+  padding: var(--e-12) var(--e-12) var(--e-16);
+  max-width: 92rem;
+  min-width: 0;
+}
+
+/* Telas estreitas: o índice vira uma faixa no topo */
+@media (max-width: 52rem) {
+  .layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .indice {
+    position: static;
+    height: auto;
+    gap: var(--e-4);
+    padding: var(--e-4);
+    border-right: 0;
+    border-bottom: 1px solid var(--pauta);
+  }
+
+  .indice__lista {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: var(--e-1) var(--e-4);
+  }
+
+  .indice__link {
+    padding: var(--e-1) 0;
+    border-left: 0;
+    border-bottom: 3px solid transparent;
+    white-space: nowrap;
+  }
+
+  .indice__link.active {
+    border-bottom-color: var(--caneta);
+  }
+
+  .conteudo {
+    padding: var(--e-6) var(--e-4) var(--e-12);
+  }
+}

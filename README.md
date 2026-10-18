@@ -22,8 +22,10 @@ Projeto da disciplina de Gerência de Projetos (Unidavi), 2026.
 
 ## Tecnologias
 
-Java 21, Spring Boot 4.1, PostgreSQL 17 (Flyway), OpenPDF, springdoc-openapi. Testes com JUnit 5
-e Testcontainers.
+Back-end: Java 21, Spring Boot 4.1, PostgreSQL 17 (Flyway), OpenPDF, springdoc-openapi. Testes
+com JUnit 5 e Testcontainers.
+
+Front-end: React 19, TypeScript, Vite, React Router e Recharts, na pasta `frontend/`.
 
 ## Rodar localmente
 
@@ -45,6 +47,16 @@ ADMIN_TOKEN=token-local mvn spring-boot:run     # API em http://localhost:8080
   ```
 
 Para o front-end rodando em outra porta, defina `CORS_ORIGENS=http://localhost:5173`.
+
+### Front-end
+
+```bash
+cd frontend
+npm install
+npm run dev     # http://localhost:5173, com a API do passo anterior rodando
+```
+
+Detalhes das telas e da direção de design em [frontend/README.md](frontend/README.md).
 
 ## Testes
 
