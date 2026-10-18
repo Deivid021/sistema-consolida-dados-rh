@@ -1,7 +1,8 @@
 package br.edu.unidavi.rhgravatai.service;
 
-import java.util.List;
-import org.springframework.jdbc.core.simple.JdbcClient;
+import br.edu.unidavi.rhgravatai.dto.OpcoesFiltroResposta;
+import br.edu.unidavi.rhgravatai.repository.VinculoRepository;
+import br.edu.unidavi.rhgravatai.repository.VinculoRepository.ColunaOpcao;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -9,41 +10,20 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class OpcoesFiltroService {
 
-    private final JdbcClient jdbc;
+    private final VinculoRepository vinculos;
 
-    public OpcoesFiltroService(JdbcClient jdbc) {
-        this.jdbc = jdbc;
+    public OpcoesFiltroService(VinculoRepository vinculos) {
+        this.vinculos = vinculos;
     }
 
     @Transactional(readOnly = true)
-    public OpcoesFiltro listar() {
-        return new OpcoesFiltro(
-                opcoes("situacao"),
-                opcoes("regime"),
-                opcoes("classificacao"),
-                opcoes("secretaria"),
-                opcoes("local_trabalho"),
-                opcoes("cargo"));
-    }
-
-    /** {@code coluna} vem só das constantes acima, nunca do usuário. */
-    private List<Opcao> opcoes(String coluna) {
-        return jdbc.sql("SELECT " + coluna + " AS valor, count(*) AS quantidade FROM vinculo"
-                        + " GROUP BY " + coluna + " ORDER BY " + coluna + " NULLS LAST")
-                .query((rs, linha) -> new Opcao(rs.getString("valor"), rs.getLong("quantidade")))
-                .list();
-    }
-
-    /** Valor nulo representa "Não informado"; para filtrar por ele, use NAO_INFORMADO. */
-    public record Opcao(String valor, long quantidade) {
-    }
-
-    public record OpcoesFiltro(
-            List<Opcao> situacao,
-            List<Opcao> regime,
-            List<Opcao> classificacao,
-            List<Opcao> secretaria,
-            List<Opcao> localTrabalho,
-            List<Opcao> cargo) {
+    public OpcoesFiltroResposta listar() {
+        return new OpcoesFiltroResposta(
+                vinculos.opcoes(ColunaOpcao.SITUACAO),
+                vinculos.opcoes(ColunaOpcao.REGIME),
+                vinculos.opcoes(ColunaOpcao.CLASSIFICACAO),
+                vinculos.opcoes(ColunaOpcao.SECRETARIA),
+                vinculos.opcoes(ColunaOpcao.LOCAL_TRABALHO),
+                vinculos.opcoes(ColunaOpcao.CARGO));
     }
 }

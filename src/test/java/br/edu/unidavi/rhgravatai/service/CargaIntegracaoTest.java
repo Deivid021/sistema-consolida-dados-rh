@@ -9,8 +9,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import br.edu.unidavi.rhgravatai.TesteIntegracaoBase;
 import br.edu.unidavi.rhgravatai.exception.CargaEmAndamentoException;
-import br.edu.unidavi.rhgravatai.model.Carga.OrigemCarga;
-import br.edu.unidavi.rhgravatai.model.Carga.StatusCarga;
+import br.edu.unidavi.rhgravatai.model.OrigemCarga;
+import br.edu.unidavi.rhgravatai.model.StatusCarga;
 import br.edu.unidavi.rhgravatai.model.Carga;
 import java.math.BigDecimal;
 import java.util.List;
@@ -21,7 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 class CargaIntegracaoTest extends TesteIntegracaoBase {
 
     @Autowired
-    private ExecutorCarga executor;
+    private CargaService executor;
 
     @Test
     void cargaCompletaConciliaEPublica() {

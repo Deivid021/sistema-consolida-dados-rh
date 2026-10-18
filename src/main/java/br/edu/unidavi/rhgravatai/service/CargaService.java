@@ -1,16 +1,17 @@
 package br.edu.unidavi.rhgravatai.service;
 
 import br.edu.unidavi.rhgravatai.client.FontePessoal;
+import br.edu.unidavi.rhgravatai.dto.ListaCargasResposta;
 import br.edu.unidavi.rhgravatai.client.PaginaFonte;
 import br.edu.unidavi.rhgravatai.client.RegistroFonte;
-import br.edu.unidavi.rhgravatai.model.Carga.OrigemCarga;
-import br.edu.unidavi.rhgravatai.model.Carga.StatusCarga;
+import br.edu.unidavi.rhgravatai.model.OrigemCarga;
+import br.edu.unidavi.rhgravatai.model.StatusCarga;
 import br.edu.unidavi.rhgravatai.model.Carga;
 import br.edu.unidavi.rhgravatai.model.RegistroTratado;
-import br.edu.unidavi.rhgravatai.model.Rejeicao;
+import br.edu.unidavi.rhgravatai.model.RegistroRejeitado;
 import br.edu.unidavi.rhgravatai.repository.CargaRepository;
 import br.edu.unidavi.rhgravatai.repository.PreparacaoRepository;
-import br.edu.unidavi.rhgravatai.service.TratadorRegistro.Resultado;
+import br.edu.unidavi.rhgravatai.service.TratamentoRegistroService.Resultado;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.ArrayList;
@@ -21,29 +22,29 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 /**
- * Executa uma carga completa (RF01; research.md §2):
+ * Carga dos dados de pessoal (RF01; research.md §2). Executa uma carga completa:
  * lê todas as páginas para a área de preparação, concilia os totais com o que a fonte
  * informou e só então publica. Carga inconsistente ou com falha não altera os dados
  * publicados (FR-003).
  */
 @Component
-public class ExecutorCarga {
+public class CargaService {
 
     /** Todo o histórico de desligados disponível na fonte (FR-002). */
     public static final LocalDate INICIO_HISTORICO = LocalDate.of(1900, 1, 1);
 
-    private static final Logger log = LoggerFactory.getLogger(ExecutorCarga.class);
+    private static final Logger log = LoggerFactory.getLogger(CargaService.class);
     private static final ZoneId FUSO = ZoneId.of("America/Sao_Paulo");
     private static final int LOG_A_CADA_PAGINAS = 50;
 
     private final FontePessoal fonte;
-    private final TratadorRegistro tratador;
+    private final TratamentoRegistroService tratador;
     private final CargaRepository cargas;
     private final PreparacaoRepository preparacao;
-    private final PublicadorCarga publicador;
+    private final PublicacaoCargaService publicador;
 
-    public ExecutorCarga(FontePessoal fonte, TratadorRegistro tratador, CargaRepository cargas,
-                         PreparacaoRepository preparacao, PublicadorCarga publicador) {
+    public CargaService(FontePessoal fonte, TratamentoRegistroService tratador, CargaRepository cargas,
+                         PreparacaoRepository preparacao, PublicacaoCargaService publicador) {
         this.fonte = fonte;
         this.tratador = tratador;
         this.cargas = cargas;
@@ -65,6 +66,11 @@ public class ExecutorCarga {
         Carga carga = iniciar(origem);
         executar(carga.id());
         return cargas.buscar(carga.id()).orElseThrow();
+    }
+
+    /** Cargas da mais recente para a mais antiga. */
+    public ListaCargasResposta listar(int pagina, int tamanho) {
+        return new ListaCargasResposta(cargas.listar(pagina, tamanho), cargas.contar());
     }
 
     /** Executa uma carga já iniciada. Nunca lança exceção: o resultado fica registrado na carga. */
@@ -120,7 +126,7 @@ public class ExecutorCarga {
 
     private int processarPagina(long cargaId, int pagina, List<RegistroFonte> registros) {
         List<RegistroTratado> validos = new ArrayList<>();
-        List<Rejeicao> rejeicoes = new ArrayList<>();
+        List<RegistroRejeitado> rejeicoes = new ArrayList<>();
         for (RegistroFonte registro : registros) {
             switch (tratador.tratar(registro)) {
                 case Resultado.Valido v -> validos.add(v.registro());

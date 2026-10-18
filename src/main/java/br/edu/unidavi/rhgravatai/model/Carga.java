@@ -33,10 +33,4 @@ public record Carga(
     public LocalDate dataInicio() {
         return inicio.atZoneSameInstant(FUSO).toLocalDate();
     }
-
-    public enum StatusCarga { EM_ANDAMENTO, SUCESSO, FALHA, INCONSISTENTE }
-
-    public enum OrigemCarga { AGENDADA, MANUAL }
-
-    public enum OrigemTeto { FONTE, MANUAL, SUSPENSA }
 }

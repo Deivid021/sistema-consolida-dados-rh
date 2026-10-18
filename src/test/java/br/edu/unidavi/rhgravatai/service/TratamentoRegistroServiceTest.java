@@ -4,18 +4,18 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import br.edu.unidavi.rhgravatai.client.RegistroFonte;
 import br.edu.unidavi.rhgravatai.model.RegistroTratado;
-import br.edu.unidavi.rhgravatai.model.Rejeicao;
+import br.edu.unidavi.rhgravatai.model.RegistroRejeitado;
 import br.edu.unidavi.rhgravatai.model.Situacao;
-import br.edu.unidavi.rhgravatai.service.TratadorRegistro.Resultado;
+import br.edu.unidavi.rhgravatai.service.TratamentoRegistroService.Resultado;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
-class TratadorRegistroTest {
+class TratamentoRegistroServiceTest {
 
-    private final TratadorRegistro tratador = new TratadorRegistro();
+    private final TratamentoRegistroService tratador = new TratamentoRegistroService();
 
     @Test
     void converteValoresDatasEHoras() {
@@ -81,7 +81,7 @@ class TratadorRegistroTest {
         Resultado resultado = tratador.tratar(registro(matricula, situacao, admissao, null, salario, horas, null));
 
         assertThat(resultado).isInstanceOf(Resultado.Rejeitado.class);
-        Rejeicao rejeicao = ((Resultado.Rejeitado) resultado).rejeicao();
+        RegistroRejeitado rejeicao = ((Resultado.Rejeitado) resultado).rejeicao();
         assertThat(rejeicao.campo()).isEqualTo(campo);
         assertThat(rejeicao.motivo()).isEqualTo(motivo);
         assertThat(rejeicao.matricula()).isEqualTo(matricula);

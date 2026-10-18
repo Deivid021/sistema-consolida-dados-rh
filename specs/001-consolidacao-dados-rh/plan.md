@@ -84,39 +84,36 @@ specs/001-consolidacao-dados-rh/
 
 ### Código-fonte (raiz do repositório)
 
-Projeto Maven único na raiz. Pacotes organizados por funcionalidade, não por camada técnica.
+Projeto Maven único na raiz, em camadas clássicas (decisão de 2026-10-18, substituindo a
+organização por funcionalidade):
 
 ```text
 pom.xml
-compose.yaml                         # banco local; em produção, banco + aplicação
+compose.yaml
 Dockerfile
 src/main/java/br/edu/unidavi/rhgravatai/
-├── RhGravataiApplication.java
-├── comum/                           # configuração, erros (problem+json), normalização de texto, filtros comuns
-├── importacao/                      # RF01
-│   ├── fonte/                       # cliente da API de Gravataí, DTO sem CPF, limite e novas tentativas
-│   ├── tratamento/                  # conversão e validação de cada registro
-│   ├── carga/                       # orquestração, área de preparação, conciliação, publicação, histórico
-│   └── agendamento/                 # @Scheduled e endpoint /admin/cargas
-├── vinculo/                         # RF02: entidade, repositório, consulta com filtros, opções de filtro
-├── indicador/                       # RF03: quadro e salários
-├── grafico/                         # RF04: movimentação e motivos
-├── alerta/                          # RF06: teto, fora do padrão, recálculo pós-carga
-├── exportacao/                      # RF05: CSV em fluxo, PDF com OpenPDF
-└── status/                          # /status
-src/main/resources/
-├── application.yml
-└── db/migration/                    # V1__esquema_inicial.sql, ...
-src/test/java/br/edu/unidavi/rhgravatai/
-├── importacao/                      # unidade (tratamento) e integração (carga com fonte simulada)
-├── vinculo/  indicador/  grafico/  alerta/  exportacao/
-└── privacidade/                     # teste de ausência de CPF
-src/test/resources/fonte/            # páginas JSON sintéticas da fonte
+├── controller/   recebe as requisições HTTP e chama os services (um por recurso da API)
+├── service/      regras de negócio: carga, consulta, indicadores, gráficos, alertas, exportação
+├── repository/   todo o SQL (JdbcClient); FiltroSql converte filtros em condições
+├── model/        conceitos do domínio e tabelas: Vinculo, Carga, Alerta, ParametroTeto, enums
+├── dto/          entrada e saída da API: FiltroVinculos, Paginacao, *Resposta
+├── client/       cliente da API de Dados Abertos de Gravataí (RF01)
+├── config/       configuração web, Swagger e propriedades do application.yml
+├── exception/    exceções e tratamento de erros (respostas em português)
+└── util/         normalização de texto para a busca sem acento
 ```
 
-**Decisão de estrutura**: um único módulo Maven na raiz deste repositório, que já guarda
-`specs/` e `docs-project/`. O front-end não fica aqui (decisão D12 da especificação).
-Pacotes por funcionalidade deixam cada RF num lugar só, facilitando a divisão de tarefas.
+Fluxo de uma requisição: `controller` → `service` → `repository` → banco. O `service` converte
+os `model` lidos do banco nos `dto` devolvidos pela API.
+
+Testes em `src/test/java/br/edu/unidavi/rhgravatai/`, nos mesmos pacotes das classes testadas.
+Dados de teste fictícios em `src/test/resources/fonte/` (páginas da API) e
+`src/test/resources/dados/` (vínculos de exemplo).
+
+**Decisão de estrutura**: camadas clássicas (controller, service, repository, model, dto), que
+é o padrão esperado na disciplina e o mais simples de explicar. Todo acesso ao banco fica nos
+repositories; controllers não têm regra de negócio. O front-end não fica neste repositório
+(decisão D12 da especificação), o que pode mudar.
 
 ## Ordem de Entrega
 

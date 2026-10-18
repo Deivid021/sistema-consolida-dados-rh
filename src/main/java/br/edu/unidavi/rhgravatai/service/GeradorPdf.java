@@ -1,6 +1,6 @@
 package br.edu.unidavi.rhgravatai.service;
 
-import br.edu.unidavi.rhgravatai.controller.StatusController;
+import br.edu.unidavi.rhgravatai.service.StatusService;
 import br.edu.unidavi.rhgravatai.dto.Relatorio.Coluna;
 import br.edu.unidavi.rhgravatai.dto.Relatorio;
 import java.awt.Color;
@@ -85,7 +85,7 @@ public class GeradorPdf {
 
             documento.add(new Paragraph(relatorio.rotuloTotal() + ": "
                     + NumberFormat.getIntegerInstance(BRASIL).format(relatorio.total()), NORMAL));
-            documento.add(new Paragraph("Fonte: " + StatusController.FONTE, RODAPE));
+            documento.add(new Paragraph("Fonte: " + StatusService.FONTE, RODAPE));
         } finally {
             if (documento.isOpen()) {
                 documento.close();

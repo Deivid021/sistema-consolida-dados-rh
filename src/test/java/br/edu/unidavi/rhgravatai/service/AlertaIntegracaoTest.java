@@ -21,7 +21,7 @@ class AlertaIntegracaoTest extends TesteIntegracaoBase {
     private static final int HORAS_200 = 12000;
 
     @Autowired
-    private CalculadorAlertas calculador;
+    private CalculoAlertasService calculador;
 
     private long cargaId;
 
