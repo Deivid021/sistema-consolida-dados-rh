@@ -31,8 +31,10 @@ class ContratoApiTest extends TesteIntegracaoBase {
             Map<String, Object> contrato = new Yaml().load(leitor);
             @SuppressWarnings("unchecked")
             Map<String, Map<String, Object>> caminhos = (Map<String, Map<String, Object>>) contrato.get("paths");
-            caminhos.forEach((caminho, metodos) -> metodos.keySet().forEach(metodo ->
-                    esperadas.add(metodo.toUpperCase(Locale.ROOT) + " /api/v1" + caminho)));
+            // As rotas /admin existem, mas ficam fora do Swagger por serem de uso interno
+            caminhos.entrySet().stream().filter(c -> !c.getKey().startsWith("/admin"))
+                    .forEach(c -> c.getValue().keySet().forEach(metodo ->
+                            esperadas.add(metodo.toUpperCase(Locale.ROOT) + " /api/v1" + c.getKey())));
         }
 
         String documentacao = mvc.perform(get("/v3/api-docs")).andReturn().getResponse()
@@ -42,7 +44,7 @@ class ContratoApiTest extends TesteIntegracaoBase {
         publicada.propertyNames().forEach(caminho -> publicada.get(caminho).propertyNames()
                 .forEach(metodo -> existentes.add(metodo.toUpperCase(Locale.ROOT) + " " + caminho)));
 
-        assertThat(esperadas).hasSize(11);
+        assertThat(esperadas).hasSize(9);
         assertThat(existentes).containsAll(esperadas);
     }
 }

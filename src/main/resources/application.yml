@@ -26,6 +26,12 @@ management:
 springdoc:
   swagger-ui:
     path: /swagger-ui.html
+    tags-sorter: alpha
+    operations-sorter: alpha
+    doc-expansion: list
+    default-models-expand-depth: -1
+    display-request-duration: true
+    try-it-out-enabled: true
 
 # API de Dados Abertos de Pessoal de Gravataí (RF01)
 fonte:

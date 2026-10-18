@@ -33,8 +33,18 @@ public class ConfiguracaoWeb implements WebMvcConfigurer {
     @Bean
     OpenAPI documentacaoApi() {
         return new OpenAPI().info(new Info()
-                .title("API de Consulta - Dados de RH de Gravataí/RS")
+                .title("Dados de RH da Prefeitura de Gravataí/RS")
                 .version("1.0.0")
-                .description("Contrato de referência: specs/001-consolidacao-dados-rh/contracts/api-consulta.yaml"));
+                .description("""
+                        Consulta, indicadores, gráficos, alertas e exportação dos dados de pessoal publicados
+                        pela API de Dados Abertos de Gravataí, atualizados todo dia às 02:00.
+
+                        **Convenções**
+                        - Datas em `yyyy-MM-dd`; valores em reais como número (ex.: `3905.17`).
+                        - Campos sem valor na fonte vêm como `null` (exibir "Não informado").
+                        - Filtros com vários valores: repita o parâmetro (`regime=CLT&regime=ESTATUTARIO`).
+                        - Erros vêm em `application/problem+json`, com a mensagem em `detail`.
+
+                        Contrato de referência: `specs/001-consolidacao-dados-rh/contracts/api-consulta.yaml`."""));
     }
 }
