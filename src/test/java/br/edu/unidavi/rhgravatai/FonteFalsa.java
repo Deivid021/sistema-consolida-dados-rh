@@ -1,8 +1,8 @@
 package br.edu.unidavi.rhgravatai;
 
-import br.edu.unidavi.rhgravatai.importacao.fonte.FonteIndisponivelException;
-import br.edu.unidavi.rhgravatai.importacao.fonte.FontePessoal;
-import br.edu.unidavi.rhgravatai.importacao.fonte.PaginaFonte;
+import br.edu.unidavi.rhgravatai.client.FontePessoal;
+import br.edu.unidavi.rhgravatai.client.PaginaFonte;
+import br.edu.unidavi.rhgravatai.exception.FonteIndisponivelException;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
