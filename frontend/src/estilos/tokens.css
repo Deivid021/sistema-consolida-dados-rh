@@ -1,0 +1,60 @@
+/*
+ * Tokens de design. Direção: a papelada do serviço público (ofício, contracheque,
+ * carimbo de protocolo, caneta azul). Só tema claro, de propósito: é "papel".
+ */
+:root {
+  color-scheme: light;
+
+  /* Base */
+  --papel: #f5f7f6;          /* fundo: branco frio de ofício */
+  --papel-elevado: #ffffff;  /* superfícies sobre o papel: tabelas, painéis */
+  --tinta: #1d2a36;          /* texto principal: preto-azulado de caneta */
+  --tinta-suave: #4a5864;    /* texto secundário */
+  --tinta-apagada: #6b7883;  /* legendas, eixos */
+  --pauta: #cbd3d8;          /* linhas de tabela e grades */
+  --pauta-leve: #e3e8eb;
+  --caneta: #2447a6;         /* ações, links, foco */
+  --caneta-escura: #1a3580;
+  --caneta-fundo: #e6ebf7;
+  --carimbo: #6b3fa0;        /* data de atualização e destaques */
+  --alerta: #b42318;         /* só alertas e erros */
+  --alerta-fundo: #fbeceb;
+
+  /* Séries dos gráficos, em ordem fixa (validada para daltonismo pela skill de dataviz) */
+  --serie-1: #2447a6;
+  --serie-2: #c8741a;
+  --serie-3: #0f9480;
+  --serie-4: #6b3fa0;
+  --serie-5: #c44e7a;
+  --serie-6: #7a8b1f;
+  --serie-outros: #8a949b;
+
+  /* Tipografia: uma família, contraste pela largura */
+  --fonte: 'Archivo Variable', 'Archivo', system-ui, sans-serif;
+  --largura-titulo: 125%;
+  --largura-texto: 100%;
+  --largura-compacta: 88%;
+
+  /* Escala tipográfica (Bringhurst): 12 · 14 · 16 · 21 · 28 · 36 · 48 */
+  --t-legenda: 0.75rem;
+  --t-pequeno: 0.875rem;
+  --t-texto: 1rem;
+  --t-sub: 1.3125rem;
+  --t-secao: 1.75rem;
+  --t-titulo: 2.25rem;
+  --t-manchete: 3rem;
+
+  /* Espaçamento em múltiplos de 4px */
+  --e-1: 0.25rem;
+  --e-2: 0.5rem;
+  --e-3: 0.75rem;
+  --e-4: 1rem;
+  --e-6: 1.5rem;
+  --e-8: 2rem;
+  --e-12: 3rem;
+  --e-16: 4rem;
+
+  --raio: 3px;
+  --medida: 68ch;
+  --largura-indice: 15rem;
+}

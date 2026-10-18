@@ -1,0 +1,109 @@
+.grafico {
+  display: flex;
+  flex-direction: column;
+  gap: var(--e-3);
+  min-width: 0;
+}
+
+.grafico__titulo {
+  font-size: var(--t-sub);
+}
+
+.grafico__subtitulo {
+  color: var(--tinta-suave);
+  font-size: var(--t-pequeno);
+}
+
+/* Dica ao passar o mouse: o valor vem primeiro, o rótulo depois */
+.dica {
+  padding: var(--e-2) var(--e-3);
+  background: var(--papel-elevado);
+  border: 1px solid var(--pauta);
+  border-radius: var(--raio);
+  box-shadow: 0 2px 8px rgb(29 42 54 / 0.12);
+  font-size: var(--t-pequeno);
+  line-height: 1.35;
+  pointer-events: none;
+}
+
+.dica__titulo {
+  color: var(--tinta-suave);
+  margin-bottom: var(--e-1);
+}
+
+.dica__linha {
+  display: flex;
+  align-items: center;
+  gap: var(--e-2);
+}
+
+.dica__chave {
+  width: 12px;
+  height: 2px;
+  border-radius: 1px;
+}
+
+.dica__valor {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Legenda: marca colorida ao lado do texto, o texto nunca na cor da série */
+.legenda {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--e-2) var(--e-6);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--t-pequeno);
+  color: var(--tinta-suave);
+}
+
+.legenda__item {
+  display: flex;
+  align-items: center;
+  gap: var(--e-2);
+}
+
+.legenda__marca {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  flex: none;
+}
+
+.legenda__marca--linha {
+  width: 16px;
+  height: 2px;
+  border-radius: 1px;
+}
+
+/* Tabela de cada gráfico: o mesmo dado, sem depender de cor nem de mouse */
+.ver-tabela {
+  font-size: var(--t-pequeno);
+}
+
+.ver-tabela summary {
+  cursor: pointer;
+  color: var(--caneta);
+  width: fit-content;
+}
+
+.ver-tabela table {
+  margin-top: var(--e-2);
+  width: 100%;
+  max-width: 36rem;
+}
+
+.ver-tabela th,
+.ver-tabela td {
+  padding: var(--e-1) var(--e-3) var(--e-1) 0;
+  border-bottom: 1px solid var(--pauta-leve);
+  text-align: left;
+}
+
+.ver-tabela th {
+  font-weight: 600;
+  color: var(--tinta-suave);
+}
