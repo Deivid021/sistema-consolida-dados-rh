@@ -57,15 +57,19 @@ fictícios; nunca acessam a API real.
 
 ```text
 src/main/java/br/edu/unidavi/rhgravatai/
-├── comum/        filtros, paginação, erros, normalização de texto
-├── importacao/   cliente da API, tratamento, carga, agendamento (RF01)
-├── vinculo/      consulta e opções de filtro (RF02)
-├── indicador/    quadro e salários (RF03)
-├── grafico/      movimentação e motivos de rescisão (RF04)
-├── exportacao/   CSV e PDF (RF05)
-├── alerta/       teto municipal e salário fora do padrão (RF06)
-└── status/       data da última carga e totais
+├── controller/   recebe as requisições HTTP e chama os services (um por recurso da API)
+├── service/      regras de negócio: carga, consulta, indicadores, gráficos, alertas, exportação
+├── repository/   todo o SQL (JdbcClient); FiltroSql converte filtros em condições
+├── model/        conceitos do domínio e tabelas: Vinculo, Carga, Alerta, ParametroTeto, enums
+├── dto/          entrada e saída da API: FiltroVinculos, Paginacao, *Resposta
+├── client/       cliente da API de Dados Abertos de Gravataí (RF01)
+├── config/       configuração web, Swagger e propriedades do application.yml
+├── exception/    exceções e tratamento de erros (respostas em português)
+└── util/         normalização de texto para a busca sem acento
 ```
+
+Fluxo de uma requisição: `controller` → `service` → `repository` → banco. O `service` converte
+os `model` lidos do banco nos `dto` devolvidos pela API.
 
 ## Privacidade
 

@@ -1,7 +1,7 @@
 package br.edu.unidavi.rhgravatai.repository;
 
 import br.edu.unidavi.rhgravatai.model.RegistroTratado;
-import br.edu.unidavi.rhgravatai.model.Rejeicao;
+import br.edu.unidavi.rhgravatai.model.RegistroRejeitado;
 import java.util.List;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -24,8 +24,14 @@ public class PreparacaoRepository {
         this.template = template;
     }
 
+    /** Esvazia a área de preparação inteira (início de carga, falha ou inconsistência). */
     public void limpar() {
         jdbc.sql("DELETE FROM vinculo_staging").update();
+    }
+
+    /** Remove os registros de uma carga já publicada. */
+    public void limpar(long cargaId) {
+        jdbc.sql("DELETE FROM vinculo_staging WHERE carga_id = :carga").param("carga", cargaId).update();
     }
 
     public void inserir(long cargaId, int pagina, List<RegistroTratado> registros) {
@@ -71,7 +77,7 @@ public class PreparacaoRepository {
                     :horasMensais, :horasSemanais, CAST(:originais AS jsonb), :textoBusca)""", lote);
     }
 
-    public void inserirRejeitados(long cargaId, int pagina, List<Rejeicao> rejeicoes) {
+    public void inserirRejeitados(long cargaId, int pagina, List<RegistroRejeitado> rejeicoes) {
         if (rejeicoes.isEmpty()) {
             return;
         }

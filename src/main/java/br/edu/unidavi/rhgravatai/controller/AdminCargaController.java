@@ -1,14 +1,13 @@
 package br.edu.unidavi.rhgravatai.controller;
 
+import br.edu.unidavi.rhgravatai.dto.ListaCargasResposta;
+import br.edu.unidavi.rhgravatai.dto.Paginacao;
 import br.edu.unidavi.rhgravatai.exception.AcessoNegadoException;
-import br.edu.unidavi.rhgravatai.exception.FiltroInvalidoException;
-import br.edu.unidavi.rhgravatai.model.Carga.OrigemCarga;
+import br.edu.unidavi.rhgravatai.model.OrigemCarga;
 import br.edu.unidavi.rhgravatai.model.Carga;
-import br.edu.unidavi.rhgravatai.repository.CargaRepository;
-import br.edu.unidavi.rhgravatai.service.ExecutorCarga;
+import br.edu.unidavi.rhgravatai.service.CargaService;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
-import java.util.List;
 import java.util.concurrent.Executor;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -29,16 +28,14 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/v1/admin/cargas")
 public class AdminCargaController {
 
-    private final ExecutorCarga executor;
-    private final CargaRepository cargas;
+    private final CargaService cargaService;
     private final Executor tarefas;
     private final byte[] token;
 
-    public AdminCargaController(ExecutorCarga executor, CargaRepository cargas,
+    public AdminCargaController(CargaService cargaService,
                                 @Qualifier("applicationTaskExecutor") Executor tarefas,
                                 @Value("${admin.token:}") String token) {
-        this.executor = executor;
-        this.cargas = cargas;
+        this.cargaService = cargaService;
         this.tarefas = tarefas;
         this.token = token.getBytes(StandardCharsets.UTF_8);
     }
@@ -47,20 +44,18 @@ public class AdminCargaController {
     @ResponseStatus(HttpStatus.ACCEPTED)
     public Carga disparar(@RequestHeader(name = "X-Admin-Token", required = false) String tokenRecebido) {
         verificarToken(tokenRecebido);
-        Carga carga = executor.iniciar(OrigemCarga.MANUAL);
-        tarefas.execute(() -> executor.executar(carga.id()));
+        Carga carga = cargaService.iniciar(OrigemCarga.MANUAL);
+        tarefas.execute(() -> cargaService.executar(carga.id()));
         return carga;
     }
 
     @GetMapping
-    public ListaCargas listar(@RequestHeader(name = "X-Admin-Token", required = false) String tokenRecebido,
-                              @RequestParam(defaultValue = "0") int pagina,
-                              @RequestParam(defaultValue = "20") int tamanho) {
+    public ListaCargasResposta listar(@RequestHeader(name = "X-Admin-Token", required = false) String tokenRecebido,
+                                      @RequestParam(required = false) Integer pagina,
+                                      @RequestParam(required = false) Integer tamanho) {
         verificarToken(tokenRecebido);
-        if (pagina < 0 || tamanho < 1 || tamanho > 100) {
-            throw new FiltroInvalidoException("Página deve ser 0 ou maior e tamanho entre 1 e 100.");
-        }
-        return new ListaCargas(cargas.listar(pagina, tamanho), cargas.contar());
+        Paginacao paginacao = Paginacao.de(pagina, tamanho);
+        return cargaService.listar(paginacao.pagina(), paginacao.tamanho());
     }
 
     private void verificarToken(String tokenRecebido) {
@@ -69,8 +64,5 @@ public class AdminCargaController {
         if (!valido) {
             throw new AcessoNegadoException();
         }
-    }
-
-    public record ListaCargas(List<Carga> itens, long total) {
     }
 }

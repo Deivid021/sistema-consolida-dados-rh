@@ -1,11 +1,11 @@
 package br.edu.unidavi.rhgravatai.controller;
 
 import br.edu.unidavi.rhgravatai.dto.FiltroVinculos;
+import br.edu.unidavi.rhgravatai.dto.OpcoesFiltroResposta;
 import br.edu.unidavi.rhgravatai.dto.PaginaResposta;
 import br.edu.unidavi.rhgravatai.dto.Paginacao;
 import br.edu.unidavi.rhgravatai.dto.VinculoResposta;
 import br.edu.unidavi.rhgravatai.service.ConsultaVinculoService;
-import br.edu.unidavi.rhgravatai.service.OpcoesFiltroService.OpcoesFiltro;
 import br.edu.unidavi.rhgravatai.service.OpcoesFiltroService;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -34,12 +34,12 @@ public class VinculoController {
                                                   @RequestParam(required = false) Integer tamanho,
                                                   @RequestParam(required = false) String ordenacao) {
         Paginacao paginacao = Paginacao.de(pagina, tamanho, ordenacao,
-                ConsultaVinculoService.ORDENACOES, ConsultaVinculoService.ORDENACAO_PADRAO);
+                ConsultaVinculoService.CAMPOS_ORDENACAO, ConsultaVinculoService.ORDENACAO_PADRAO);
         return consulta.consultar(filtro, paginacao);
     }
 
     @GetMapping("/filtros/opcoes")
-    public OpcoesFiltro opcoes() {
+    public OpcoesFiltroResposta opcoes() {
         return opcoes.listar();
     }
 }

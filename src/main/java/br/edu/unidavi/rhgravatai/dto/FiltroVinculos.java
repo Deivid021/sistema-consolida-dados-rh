@@ -5,13 +5,12 @@ import br.edu.unidavi.rhgravatai.model.Situacao;
 import br.edu.unidavi.rhgravatai.util.NormalizadorTexto;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Filtros da consulta de vínculos (RF02), recebidos dos parâmetros da URL e reutilizados por
- * indicadores, gráficos, alertas e exportação.
+ * indicadores, gráficos, alertas e exportação. A conversão para SQL fica em
+ * {@code repository.FiltroSql}.
  *
  * <p>Regras (FR-015 a FR-019): filtros diferentes são combinados com E e vários valores do
  * mesmo filtro com OU; {@value #NAO_INFORMADO} procura os vínculos sem o dado; os períodos
@@ -47,6 +46,17 @@ public record FiltroVinculos(
         cargo = valores(cargo);
     }
 
+    /** Filtro só por regime, secretaria e cargo, usado pelos gráficos e alertas (contrato). */
+    public static FiltroVinculos de(List<String> regime, List<String> secretaria, List<String> cargo) {
+        return new FiltroVinculos(null, null, regime, null, secretaria, null, cargo, null, null, null, null);
+    }
+
+    /** Devolve o filtro com a busca por texto trocada. */
+    public FiltroVinculos comBusca(String novaBusca) {
+        return new FiltroVinculos(novaBusca, situacao, regime, classificacao, secretaria, localTrabalho, cargo,
+                admissaoInicio, admissaoFim, desligamentoInicio, desligamentoFim);
+    }
+
     /** Devolve o filtro com a situação trocada, para indicadores que só consideram ativos. */
     public FiltroVinculos comSituacao(List<Situacao> novaSituacao) {
         return new FiltroVinculos(q, novaSituacao, regime, classificacao, secretaria, localTrabalho, cargo,
@@ -54,44 +64,31 @@ public record FiltroVinculos(
     }
 
     /**
-     * Monta a condição SQL. {@code prefixo} é o alias da tabela vinculo com ponto (ex.: "v.")
-     * ou vazio. Lança {@link FiltroInvalidoException} se algum filtro for inválido.
+     * Valida os filtros (FR-017, FR-019).
+     *
+     * @throws FiltroInvalidoException com mensagem para o usuário
      */
-    public CondicaoSql paraSql(String prefixo) {
+    public void validar() {
         validarPeriodo(admissaoInicio, admissaoFim, "admissão");
         validarPeriodo(desligamentoInicio, desligamentoFim, "desligamento");
-
-        List<String> condicoes = new ArrayList<>();
-        Map<String, Object> parametros = new HashMap<>();
-
-        if (q != null && !q.isBlank()) {
-            String busca = NormalizadorTexto.normalizar(q);
-            if (busca == null || busca.length() < TAMANHO_MINIMO_BUSCA) {
-                throw new FiltroInvalidoException(
-                        "A busca precisa ter pelo menos " + TAMANHO_MINIMO_BUSCA + " caracteres.");
-            }
-            condicoes.add(prefixo + "texto_busca LIKE :fq");
-            parametros.put("fq", "%" + escaparLike(busca) + "%");
+        if (temBusca() && buscaNormalizada().length() < TAMANHO_MINIMO_BUSCA) {
+            throw new FiltroInvalidoException(
+                    "A busca precisa ter pelo menos " + TAMANHO_MINIMO_BUSCA + " caracteres.");
         }
+    }
 
-        if (!situacao.isEmpty()) {
-            condicoes.add(prefixo + "situacao IN (:fsituacao)");
-            parametros.put("fsituacao", situacao.stream().map(Enum::name).toList());
-        }
-        lista(condicoes, parametros, prefixo + "regime", "fregime", regime);
-        lista(condicoes, parametros, prefixo + "classificacao", "fclassificacao", classificacao);
-        lista(condicoes, parametros, prefixo + "secretaria", "fsecretaria", secretaria);
-        lista(condicoes, parametros, prefixo + "local_trabalho", "flocal", localTrabalho);
-        lista(condicoes, parametros, prefixo + "cargo", "fcargo", cargo);
+    public boolean temBusca() {
+        return q != null && !q.isBlank();
+    }
 
-        periodo(condicoes, parametros, prefixo + "data_admissao", "fadm", admissaoInicio, admissaoFim);
-        if (desligamentoInicio != null || desligamentoFim != null) {
-            condicoes.add(prefixo + "situacao = 'DESLIGADO'");
-            periodo(condicoes, parametros, prefixo + "data_desligamento", "fdes", desligamentoInicio, desligamentoFim);
-        }
+    /** Texto da busca sem acentos e em minúsculas, como a coluna texto_busca. */
+    public String buscaNormalizada() {
+        String normalizada = NormalizadorTexto.normalizar(q);
+        return normalizada == null ? "" : normalizada;
+    }
 
-        String where = condicoes.isEmpty() ? "TRUE" : String.join(" AND ", condicoes);
-        return new CondicaoSql(where, parametros);
+    public boolean temPeriodoDeDesligamento() {
+        return desligamentoInicio != null || desligamentoFim != null;
     }
 
     /** Descreve os filtros aplicados em texto, para os relatórios exportados (FR-035). */
@@ -124,45 +121,11 @@ public record FiltroVinculos(
         return lista.stream().map(NormalizadorTexto::limpar).filter(v -> v != null).distinct().toList();
     }
 
-    private static void lista(List<String> condicoes, Map<String, Object> parametros,
-                              String coluna, String nome, List<String> valores) {
-        if (valores.isEmpty()) {
-            return;
-        }
-        boolean incluiNaoInformado = valores.contains(NAO_INFORMADO);
-        List<String> informados = valores.stream().filter(v -> !v.equals(NAO_INFORMADO)).toList();
-        List<String> alternativas = new ArrayList<>();
-        if (!informados.isEmpty()) {
-            alternativas.add(coluna + " IN (:" + nome + ")");
-            parametros.put(nome, informados);
-        }
-        if (incluiNaoInformado) {
-            alternativas.add(coluna + " IS NULL");
-        }
-        condicoes.add("(" + String.join(" OR ", alternativas) + ")");
-    }
-
-    private static void periodo(List<String> condicoes, Map<String, Object> parametros,
-                                String coluna, String nome, LocalDate inicio, LocalDate fim) {
-        if (inicio != null) {
-            condicoes.add(coluna + " >= :" + nome + "Inicio");
-            parametros.put(nome + "Inicio", inicio);
-        }
-        if (fim != null) {
-            condicoes.add(coluna + " <= :" + nome + "Fim");
-            parametros.put(nome + "Fim", fim);
-        }
-    }
-
     private static void validarPeriodo(LocalDate inicio, LocalDate fim, String nome) {
         if (inicio != null && fim != null && inicio.isAfter(fim)) {
             throw new FiltroInvalidoException(
                     "No período de " + nome + ", a data inicial não pode ser maior que a data final.");
         }
-    }
-
-    private static String escaparLike(String texto) {
-        return texto.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_");
     }
 
     private static void adicionar(List<String> descricao, String rotulo, List<String> valores) {
@@ -176,7 +139,4 @@ public record FiltroVinculos(
         return data == null ? "…" : String.format("%02d/%02d/%04d", data.getDayOfMonth(), data.getMonthValue(), data.getYear());
     }
 
-    /** Trecho de WHERE com seus parâmetros nomeados. */
-    public record CondicaoSql(String where, Map<String, Object> parametros) {
-    }
 }

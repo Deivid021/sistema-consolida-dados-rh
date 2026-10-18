@@ -1,9 +1,9 @@
 package br.edu.unidavi.rhgravatai.repository;
 
 import br.edu.unidavi.rhgravatai.exception.CargaEmAndamentoException;
-import br.edu.unidavi.rhgravatai.model.Carga.OrigemCarga;
-import br.edu.unidavi.rhgravatai.model.Carga.OrigemTeto;
-import br.edu.unidavi.rhgravatai.model.Carga.StatusCarga;
+import br.edu.unidavi.rhgravatai.model.OrigemCarga;
+import br.edu.unidavi.rhgravatai.model.OrigemTeto;
+import br.edu.unidavi.rhgravatai.model.StatusCarga;
 import br.edu.unidavi.rhgravatai.model.Carga;
 import java.math.BigDecimal;
 import java.sql.ResultSet;
@@ -57,6 +57,14 @@ public class CargaRepository {
         return jdbc.sql("SELECT * FROM carga WHERE status = 'SUCESSO' ORDER BY fim DESC LIMIT 1")
                 .query(CargaRepository::mapear)
                 .optional();
+    }
+
+    /** Fim da última carga bem-sucedida, exibido em todas as telas (FR-013); nulo antes da primeira. */
+    public OffsetDateTime ultimaAtualizacao() {
+        return jdbc.sql("SELECT fim FROM carga WHERE status = 'SUCESSO' ORDER BY fim DESC LIMIT 1")
+                .query(OffsetDateTime.class)
+                .optional()
+                .orElse(null);
     }
 
     public List<Carga> listar(int pagina, int tamanho) {

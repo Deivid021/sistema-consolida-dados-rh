@@ -1,19 +1,20 @@
-package br.edu.unidavi.rhgravatai.dto;
+package br.edu.unidavi.rhgravatai.repository;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import br.edu.unidavi.rhgravatai.dto.FiltroVinculos;
 import br.edu.unidavi.rhgravatai.exception.FiltroInvalidoException;
 import br.edu.unidavi.rhgravatai.model.Situacao;
 import java.time.LocalDate;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 
-class FiltroVinculosTest {
+class FiltroSqlTest {
 
     @Test
     void semFiltrosNaoRestringe() {
-        assertThat(FiltroVinculos.vazio().paraSql("").where()).isEqualTo("TRUE");
+        assertThat(FiltroSql.de(FiltroVinculos.vazio(), "").where()).isEqualTo("TRUE");
     }
 
     @Test
@@ -21,7 +22,7 @@ class FiltroVinculosTest {
         var filtro = new FiltroVinculos(null, List.of(Situacao.AFASTADO, Situacao.TRABALHANDO),
                 List.of("CLT", "ESTATUTARIO"), null, List.of("SMS"), null, null, null, null, null, null);
 
-        var sql = filtro.paraSql("v.");
+        var sql = FiltroSql.de(filtro, "v.");
 
         assertThat(sql.where()).isEqualTo(
                 "v.situacao IN (:fsituacao) AND (v.regime IN (:fregime)) AND (v.secretaria IN (:fsecretaria))");
@@ -36,15 +37,15 @@ class FiltroVinculosTest {
         var misturado = new FiltroVinculos(null, null, null, List.of("PENSIONISTA", "NAO_INFORMADO"), null, null,
                 null, null, null, null, null);
 
-        assertThat(soNaoInformado.paraSql("").where()).isEqualTo("(classificacao IS NULL)");
-        assertThat(misturado.paraSql("").where()).isEqualTo("(classificacao IN (:fclassificacao) OR classificacao IS NULL)");
+        assertThat(FiltroSql.de(soNaoInformado, "").where()).isEqualTo("(classificacao IS NULL)");
+        assertThat(FiltroSql.de(misturado, "").where()).isEqualTo("(classificacao IN (:fclassificacao) OR classificacao IS NULL)");
     }
 
     @Test
     void buscaNormalizadaEComCuringasEscapados() {
         var filtro = new FiltroVinculos("  José_100% ", null, null, null, null, null, null, null, null, null, null);
 
-        var sql = filtro.paraSql("");
+        var sql = FiltroSql.de(filtro, "");
 
         assertThat(sql.where()).isEqualTo("texto_busca LIKE :fq");
         assertThat(sql.parametros()).containsEntry("fq", "%jose\\_100\\%%");
@@ -54,7 +55,7 @@ class FiltroVinculosTest {
     void buscaCurtaEInvalida() {
         var filtro = new FiltroVinculos("a", null, null, null, null, null, null, null, null, null, null);
 
-        assertThatThrownBy(() -> filtro.paraSql("")).isInstanceOf(FiltroInvalidoException.class)
+        assertThatThrownBy(() -> FiltroSql.de(filtro, "")).isInstanceOf(FiltroInvalidoException.class)
                 .hasMessageContaining("pelo menos 2 caracteres");
     }
 
@@ -63,7 +64,7 @@ class FiltroVinculosTest {
         var filtro = new FiltroVinculos(null, null, null, null, null, null, null,
                 LocalDate.of(2026, 1, 1), null, null, null);
 
-        assertThat(filtro.paraSql("").where()).isEqualTo("data_admissao >= :fadmInicio");
+        assertThat(FiltroSql.de(filtro, "").where()).isEqualTo("data_admissao >= :fadmInicio");
     }
 
     @Test
@@ -71,7 +72,7 @@ class FiltroVinculosTest {
         var filtro = new FiltroVinculos(null, null, null, null, null, null, null,
                 LocalDate.of(2026, 12, 31), LocalDate.of(2026, 1, 1), null, null);
 
-        assertThatThrownBy(() -> filtro.paraSql("")).isInstanceOf(FiltroInvalidoException.class)
+        assertThatThrownBy(() -> FiltroSql.de(filtro, "")).isInstanceOf(FiltroInvalidoException.class)
                 .hasMessageContaining("data inicial não pode ser maior");
     }
 
@@ -80,7 +81,7 @@ class FiltroVinculosTest {
         var filtro = new FiltroVinculos(null, null, null, null, null, null, null, null, null,
                 LocalDate.of(2026, 1, 1), LocalDate.of(2026, 12, 31));
 
-        assertThat(filtro.paraSql("").where()).isEqualTo(
+        assertThat(FiltroSql.de(filtro, "").where()).isEqualTo(
                 "situacao = 'DESLIGADO' AND data_desligamento >= :fdesInicio AND data_desligamento <= :fdesFim");
     }
 }

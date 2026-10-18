@@ -23,6 +23,14 @@ e `EspecificacaoVinculos.java` (T011, T013) não existem; a lógica está em `Fi
 `ConsultaVinculoService` e `CargaRepository`. As entidades das tarefas T012, T024 e T048 viram
 records e repositórios JDBC.
 
+**Nota de estrutura (2026-10-18)**: depois da implementação, o código foi reorganizado em
+camadas clássicas (`controller/`, `service/`, `repository/`, `model/`, `dto/`, `client/`, `config/`,
+`exception/`, `util/`). Os caminhos citados nas tarefas abaixo são os originais; o
+[plan.md](plan.md) traz a estrutura atual. Renomeações principais: `ExecutorCarga` →
+`CargaService`, `PublicadorCarga` → `PublicacaoCargaService`, `TratadorRegistro` →
+`TratamentoRegistroService`, `CalculadorAlertas` → `CalculoAlertasService`, `QuadroService` e
+`SalarioService` → `IndicadorService`, `ResolvedorTeto` e `TetoVigente` → `TetoService`.
+
 ## Formato: `[ID] [P?] [História] Descrição`
 
 - **[P]**: pode rodar em paralelo (arquivos diferentes, sem dependência de tarefa pendente)

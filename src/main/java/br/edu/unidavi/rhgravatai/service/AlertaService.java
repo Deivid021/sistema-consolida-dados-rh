@@ -1,23 +1,19 @@
 package br.edu.unidavi.rhgravatai.service;
 
 import br.edu.unidavi.rhgravatai.config.PropriedadesAlertas;
-import br.edu.unidavi.rhgravatai.dto.FiltroVinculos.CondicaoSql;
+import br.edu.unidavi.rhgravatai.dto.AlertaResposta;
 import br.edu.unidavi.rhgravatai.dto.FiltroVinculos;
+import br.edu.unidavi.rhgravatai.dto.PaginaAlertasResposta;
 import br.edu.unidavi.rhgravatai.dto.Paginacao;
 import br.edu.unidavi.rhgravatai.dto.VinculoResposta;
+import br.edu.unidavi.rhgravatai.model.Alerta;
 import br.edu.unidavi.rhgravatai.model.RegraAlerta;
-import br.edu.unidavi.rhgravatai.service.TetoVigente.Teto;
-import java.math.BigDecimal;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import br.edu.unidavi.rhgravatai.repository.AlertaRepository;
+import br.edu.unidavi.rhgravatai.repository.CargaRepository;
 import java.text.NumberFormat;
-import java.time.OffsetDateTime;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.stream.Stream;
-import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,122 +22,61 @@ import org.springframework.transaction.annotation.Transactional;
 public class AlertaService {
 
     private static final Locale BRASIL = Locale.forLanguageTag("pt-BR");
-    private static final String ORDEM = "abs(a.diferenca_percentual) DESC, v.nome NULLS LAST, v.id";
 
-    private final JdbcClient jdbc;
-    private final TetoVigente tetoVigente;
-    private final UltimaAtualizacao ultimaAtualizacao;
+    private final AlertaRepository alertas;
+    private final TetoService tetoService;
+    private final CargaRepository cargas;
     private final PropriedadesAlertas propriedades;
 
-    public AlertaService(JdbcClient jdbc, TetoVigente tetoVigente, UltimaAtualizacao ultimaAtualizacao,
+    public AlertaService(AlertaRepository alertas, TetoService tetoService, CargaRepository cargas,
                          PropriedadesAlertas propriedades) {
-        this.jdbc = jdbc;
-        this.tetoVigente = tetoVigente;
-        this.ultimaAtualizacao = ultimaAtualizacao;
+        this.alertas = alertas;
+        this.tetoService = tetoService;
+        this.cargas = cargas;
         this.propriedades = propriedades;
     }
 
+    /** Ordenação fixa: maior diferença percentual primeiro. */
     @Transactional(readOnly = true)
-    public PaginaAlertas listar(RegraAlerta regra, FiltroVinculos filtro, Paginacao paginacao) {
-        Consulta consulta = consulta(regra, filtro);
-        long total = jdbc.sql("SELECT count(*) FROM alerta a JOIN vinculo v ON v.id = a.vinculo_id WHERE " + consulta.where)
-                .params(consulta.parametros).query(Long.class).single();
-        List<Alerta> itens = jdbc.sql(consulta.select() + " ORDER BY " + ORDEM + " LIMIT :limite OFFSET :deslocamento")
-                .params(consulta.parametros)
-                .param("limite", paginacao.tamanho())
-                .param("deslocamento", paginacao.deslocamento())
-                .query(AlertaService::mapear)
-                .list();
-        return new PaginaAlertas(itens, total, paginacao.pagina(), paginacao.tamanho(), tetoVigente.obter(),
-                propriedades.foraPadrao().percentual(), ultimaAtualizacao.obter());
+    public PaginaAlertasResposta listar(RegraAlerta regra, FiltroVinculos filtro, Paginacao paginacao) {
+        List<AlertaResposta> itens = alertas.buscar(regra, filtro, paginacao).stream()
+                .map(AlertaService::paraResposta).toList();
+        return new PaginaAlertasResposta(itens, alertas.contar(regra, filtro), paginacao.pagina(),
+                paginacao.tamanho(), tetoService.vigente(), propriedades.foraPadrao().percentual(),
+                cargas.ultimaAtualizacao());
     }
 
     public long contar(RegraAlerta regra, FiltroVinculos filtro) {
-        Consulta consulta = consulta(regra, filtro);
-        return jdbc.sql("SELECT count(*) FROM alerta a JOIN vinculo v ON v.id = a.vinculo_id WHERE " + consulta.where)
-                .params(consulta.parametros).query(Long.class).single();
+        return alertas.contar(regra, filtro);
     }
 
-    /** Todos os alertas do filtro, em fluxo, para a exportação. Consumir dentro de uma transação. */
-    public Stream<Alerta> fluxo(RegraAlerta regra, FiltroVinculos filtro) {
-        Consulta consulta = consulta(regra, filtro);
-        return jdbc.sql(consulta.select() + " ORDER BY " + ORDEM)
-                .params(consulta.parametros)
-                .withFetchSize(1000)
-                .query(AlertaService::mapear)
-                .stream();
+    /** Todos os alertas do filtro, para a exportação. Consumir dentro de uma transação. */
+    public Stream<AlertaResposta> fluxo(RegraAlerta regra, FiltroVinculos filtro) {
+        return alertas.fluxo(regra, filtro).map(AlertaService::paraResposta);
     }
 
-    private static Consulta consulta(RegraAlerta regra, FiltroVinculos filtro) {
-        CondicaoSql condicao = filtro.paraSql("v.");
-        Map<String, Object> parametros = new HashMap<>(condicao.parametros());
-        String where = condicao.where();
-        if (regra != null) {
-            where += " AND a.regra = :regra";
-            parametros.put("regra", regra.name());
-        }
-        return new Consulta(where, parametros);
-    }
-
-    private static Alerta mapear(ResultSet rs, int linha) throws SQLException {
-        RegraAlerta regra = RegraAlerta.valueOf(rs.getString("regra"));
-        BigDecimal valorVinculo = rs.getBigDecimal("valor_vinculo");
-        BigDecimal referencia = rs.getBigDecimal("valor_referencia");
-        BigDecimal diferenca = rs.getBigDecimal("diferenca");
-        BigDecimal percentual = rs.getBigDecimal("diferenca_percentual");
-        Integer grupo = (Integer) rs.getObject("grupo_tamanho");
-        return new Alerta(regra, VinculoResposta.mapear(rs, linha), valorVinculo, referencia, diferenca, percentual,
-                grupo, descrever(regra, referencia, diferenca, percentual, grupo));
+    static AlertaResposta paraResposta(Alerta a) {
+        return new AlertaResposta(a.regra(), VinculoResposta.de(a.vinculo()), a.valorVinculo(), a.valorReferencia(),
+                a.diferenca(), a.diferencaPercentual(), a.grupoTamanho(), descrever(a));
     }
 
     /** Texto do critério, exibido junto ao aviso de que é sinalização para verificação (FR-041). */
-    static String descrever(RegraAlerta regra, BigDecimal referencia, BigDecimal diferenca, BigDecimal percentual,
-                            Integer grupo) {
+    static String descrever(Alerta alerta) {
         NumberFormat moeda = NumberFormat.getCurrencyInstance(BRASIL);
         String texto;
-        if (regra == RegraAlerta.TETO) {
-            texto = "Salário base " + moeda.format(diferenca) + " acima do teto municipal (subsídio do prefeito) de "
-                    + moeda.format(referencia) + ".";
+        if (alerta.regra() == RegraAlerta.TETO) {
+            texto = "Salário base " + moeda.format(alerta.diferenca()) + " acima do teto municipal (subsídio do prefeito) de "
+                    + moeda.format(alerta.valorReferencia()) + ".";
         } else {
             NumberFormat numero = NumberFormat.getNumberInstance(BRASIL);
             numero.setMinimumFractionDigits(1);
             numero.setMaximumFractionDigits(1);
-            String direcao = percentual.signum() >= 0 ? "acima" : "abaixo";
-            texto = "Salário base " + numero.format(percentual.abs()) + "% " + direcao + " da mediana ("
-                    + moeda.format(referencia) + ") dos " + grupo
+            String direcao = alerta.diferencaPercentual().signum() >= 0 ? "acima" : "abaixo";
+            texto = "Salário base " + numero.format(alerta.diferencaPercentual().abs()) + "% " + direcao
+                    + " da mediana (" + moeda.format(alerta.valorReferencia()) + ") dos " + alerta.grupoTamanho()
                     + " vínculos ativos com o mesmo cargo, nível e carga horária.";
         }
         // O formato de moeda do Java usa espaço não separável depois de "R$"
-        return texto.replace('\u00A0', ' ');
-    }
-
-    private record Consulta(String where, Map<String, Object> parametros) {
-
-        String select() {
-            return "SELECT a.regra, a.valor_vinculo, a.valor_referencia, a.diferenca, a.diferenca_percentual,"
-                    + " a.grupo_tamanho, " + VinculoResposta.colunas("v.")
-                    + " FROM alerta a JOIN vinculo v ON v.id = a.vinculo_id WHERE " + where;
-        }
-    }
-
-    public record Alerta(
-            RegraAlerta regra,
-            VinculoResposta vinculo,
-            BigDecimal valorVinculo,
-            BigDecimal valorReferencia,
-            BigDecimal diferenca,
-            BigDecimal diferencaPercentual,
-            Integer grupoTamanho,
-            String descricaoRegra) {
-    }
-
-    public record PaginaAlertas(
-            List<Alerta> itens,
-            long total,
-            int pagina,
-            int tamanho,
-            Teto teto,
-            BigDecimal percentualForaPadrao,
-            OffsetDateTime ultimaAtualizacao) {
+        return texto.replace(' ', ' ');
     }
 }

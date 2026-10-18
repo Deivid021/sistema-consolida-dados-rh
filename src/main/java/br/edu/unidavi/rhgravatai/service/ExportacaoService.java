@@ -1,17 +1,18 @@
 package br.edu.unidavi.rhgravatai.service;
 
+import br.edu.unidavi.rhgravatai.dto.AlertaResposta;
 import br.edu.unidavi.rhgravatai.dto.Contagem;
 import br.edu.unidavi.rhgravatai.dto.FiltroVinculos;
+import br.edu.unidavi.rhgravatai.dto.GrupoSalarialResposta;
 import br.edu.unidavi.rhgravatai.dto.Paginacao;
+import br.edu.unidavi.rhgravatai.dto.QuadroResposta;
 import br.edu.unidavi.rhgravatai.dto.Relatorio.Coluna;
 import br.edu.unidavi.rhgravatai.dto.Relatorio;
 import br.edu.unidavi.rhgravatai.dto.VinculoResposta;
 import br.edu.unidavi.rhgravatai.exception.ExportacaoMuitoGrandeException;
 import br.edu.unidavi.rhgravatai.exception.FiltroInvalidoException;
 import br.edu.unidavi.rhgravatai.model.RegraAlerta;
-import br.edu.unidavi.rhgravatai.service.AlertaService.Alerta;
-import br.edu.unidavi.rhgravatai.service.QuadroService.Quadro;
-import br.edu.unidavi.rhgravatai.service.SalarioService.GrupoSalarial;
+import br.edu.unidavi.rhgravatai.repository.CargaRepository;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -35,22 +36,20 @@ public class ExportacaoService {
     private static final ZoneId FUSO = ZoneId.of("America/Sao_Paulo");
 
     private final ConsultaVinculoService vinculos;
-    private final QuadroService quadro;
-    private final SalarioService salarios;
+    private final IndicadorService indicadores;
     private final AlertaService alertas;
-    private final UltimaAtualizacao ultimaAtualizacao;
+    private final CargaRepository cargas;
     private final EscritorCsv csv;
     private final GeradorPdf pdf;
     private final int maximoLinhasPdf;
 
-    public ExportacaoService(ConsultaVinculoService vinculos, QuadroService quadro, SalarioService salarios,
-                             AlertaService alertas, UltimaAtualizacao ultimaAtualizacao, EscritorCsv csv,
-                             GeradorPdf pdf, @Value("${exportacao.pdf.max-linhas}") int maximoLinhasPdf) {
+    public ExportacaoService(ConsultaVinculoService vinculos, IndicadorService indicadores, AlertaService alertas,
+                             CargaRepository cargas, EscritorCsv csv, GeradorPdf pdf,
+                             @Value("${exportacao.pdf.max-linhas}") int maximoLinhasPdf) {
         this.vinculos = vinculos;
-        this.quadro = quadro;
-        this.salarios = salarios;
+        this.indicadores = indicadores;
         this.alertas = alertas;
-        this.ultimaAtualizacao = ultimaAtualizacao;
+        this.cargas = cargas;
         this.csv = csv;
         this.pdf = pdf;
         this.maximoLinhasPdf = maximoLinhasPdf;
@@ -87,8 +86,8 @@ public class ExportacaoService {
     }
 
     private Relatorio<VinculoResposta> vinculos(FiltroVinculos filtro, String ordenacao, Formato formato) {
-        String orderBy = Paginacao.de(0, 1, ordenacao, ConsultaVinculoService.ORDENACOES,
-                ConsultaVinculoService.ORDENACAO_PADRAO).orderBy();
+        Paginacao ordem = Paginacao.de(0, 1, ordenacao, ConsultaVinculoService.CAMPOS_ORDENACAO,
+                ConsultaVinculoService.ORDENACAO_PADRAO);
         long total = vinculos.contar(filtro);
         verificarLimite(formato, total);
         List<Coluna<VinculoResposta>> colunas = List.of(
@@ -108,12 +107,12 @@ public class ExportacaoService {
                 Coluna.texto("Desligamento", VinculoResposta::dataDesligamento, 6),
                 Coluna.soCsv("Motivo do desligamento", VinculoResposta::motivoDesligamento),
                 Coluna.soCsv("Presente na última carga", VinculoResposta::ativoNaFonte));
-        return new Relatorio<>("Consulta de vínculos", "vinculos", filtro.descrever(), ultimaAtualizacao.obter(),
-                colunas, vinculos.fluxo(filtro, orderBy), "Total de vínculos", total);
+        return new Relatorio<>("Consulta de vínculos", "vinculos", filtro.descrever(), cargas.ultimaAtualizacao(),
+                colunas, vinculos.fluxo(filtro, ordem), "Total de vínculos", total);
     }
 
     private Relatorio<LinhaQuadro> quadro(FiltroVinculos filtro) {
-        Quadro resultado = quadro.calcular(filtro);
+        QuadroResposta resultado = indicadores.quadro(filtro);
         List<LinhaQuadro> linhas = new ArrayList<>();
         adicionar(linhas, "Situação", resultado.porSituacao());
         adicionar(linhas, "Regime", resultado.porRegime());
@@ -126,46 +125,46 @@ public class ExportacaoService {
                 resultado.ultimaAtualizacao(), colunas, linhas.stream(), "Total de vínculos", resultado.total());
     }
 
-    private Relatorio<GrupoSalarial> salarios(FiltroVinculos filtro, String ordenacao, Formato formato) {
-        String orderBy = Paginacao.de(0, 1, ordenacao, SalarioService.ORDENACOES,
-                SalarioService.ORDENACAO_PADRAO).orderBy();
-        long total = salarios.contarGrupos(filtro);
+    private Relatorio<GrupoSalarialResposta> salarios(FiltroVinculos filtro, String ordenacao, Formato formato) {
+        Paginacao ordem = Paginacao.de(0, 1, ordenacao, IndicadorService.CAMPOS_ORDENACAO_SALARIO,
+                IndicadorService.ORDENACAO_PADRAO_SALARIO);
+        long total = indicadores.contarGruposSalariais(filtro);
         verificarLimite(formato, total);
         List<String> filtros = new ArrayList<>(filtro.descrever());
         if (filtro.situacao().isEmpty()) {
             filtros.add("Somente vínculos ativos");
         }
-        List<Coluna<GrupoSalarial>> colunas = List.of(
-                Coluna.texto("Cargo", GrupoSalarial::cargo, 16),
-                Coluna.texto("Nível", GrupoSalarial::nivel, 6),
-                Coluna.texto("Vínculos com salário", GrupoSalarial::quantidade, 5),
-                Coluna.texto("Sem salário", GrupoSalarial::quantidadeSemSalario, 4),
-                Coluna.moeda("Soma do salário base", GrupoSalarial::soma, 8),
-                Coluna.moeda("Média do salário base", GrupoSalarial::media, 8));
-        return new Relatorio<>("Salário base por cargo e nível", "salarios", filtros, ultimaAtualizacao.obter(),
-                colunas, salarios.fluxo(filtro, orderBy), "Total de grupos", total);
+        List<Coluna<GrupoSalarialResposta>> colunas = List.of(
+                Coluna.texto("Cargo", GrupoSalarialResposta::cargo, 16),
+                Coluna.texto("Nível", GrupoSalarialResposta::nivel, 6),
+                Coluna.texto("Vínculos com salário", GrupoSalarialResposta::quantidade, 5),
+                Coluna.texto("Sem salário", GrupoSalarialResposta::quantidadeSemSalario, 4),
+                Coluna.moeda("Soma do salário base", GrupoSalarialResposta::soma, 8),
+                Coluna.moeda("Média do salário base", GrupoSalarialResposta::media, 8));
+        return new Relatorio<>("Salário base por cargo e nível", "salarios", filtros, cargas.ultimaAtualizacao(),
+                colunas, indicadores.fluxoSalarios(filtro, ordem), "Total de grupos", total);
     }
 
-    private Relatorio<Alerta> alertas(FiltroVinculos filtro, RegraAlerta regra, Formato formato) {
+    private Relatorio<AlertaResposta> alertas(FiltroVinculos filtro, RegraAlerta regra, Formato formato) {
         long total = alertas.contar(regra, filtro);
         verificarLimite(formato, total);
         List<String> filtros = new ArrayList<>(filtro.descrever());
         if (regra != null) {
             filtros.add("Regra: " + regra.name());
         }
-        List<Coluna<Alerta>> colunas = List.of(
+        List<Coluna<AlertaResposta>> colunas = List.of(
                 Coluna.texto("Regra", a -> a.regra().name(), 5),
                 Coluna.texto("Matrícula", a -> a.vinculo().matricula(), 5),
                 Coluna.texto("Nome", a -> a.vinculo().nome(), 12),
                 Coluna.texto("Cargo", a -> a.vinculo().cargo(), 10),
                 Coluna.texto("Nível", a -> a.vinculo().nivel(), 4),
                 Coluna.texto("Secretaria", a -> a.vinculo().secretaria(), 10),
-                Coluna.moeda("Salário base", Alerta::valorVinculo, 6),
-                Coluna.moeda("Referência", Alerta::valorReferencia, 6),
-                Coluna.texto("Diferença (%)", Alerta::diferencaPercentual, 4),
-                Coluna.texto("Critério", Alerta::descricaoRegra, 22));
+                Coluna.moeda("Salário base", AlertaResposta::valorVinculo, 6),
+                Coluna.moeda("Referência", AlertaResposta::valorReferencia, 6),
+                Coluna.texto("Diferença (%)", AlertaResposta::diferencaPercentual, 4),
+                Coluna.texto("Critério", AlertaResposta::descricaoRegra, 22));
         return new Relatorio<>("Alertas para verificação (não indicam irregularidade)", "alertas", filtros,
-                ultimaAtualizacao.obter(), colunas, alertas.fluxo(regra, filtro), "Total de alertas", total);
+                cargas.ultimaAtualizacao(), colunas, alertas.fluxo(regra, filtro), "Total de alertas", total);
     }
 
     private void verificarLimite(Formato formato, long linhas) {

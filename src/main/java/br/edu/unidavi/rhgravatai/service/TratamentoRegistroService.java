@@ -2,7 +2,7 @@ package br.edu.unidavi.rhgravatai.service;
 
 import br.edu.unidavi.rhgravatai.client.RegistroFonte;
 import br.edu.unidavi.rhgravatai.model.RegistroTratado;
-import br.edu.unidavi.rhgravatai.model.Rejeicao;
+import br.edu.unidavi.rhgravatai.model.RegistroRejeitado;
 import br.edu.unidavi.rhgravatai.model.Situacao;
 import br.edu.unidavi.rhgravatai.util.NormalizadorTexto;
 import java.math.BigDecimal;
@@ -26,7 +26,7 @@ import org.springframework.stereotype.Component;
  * o campo e o motivo.
  */
 @Component
-public class TratadorRegistro {
+public class TratamentoRegistroService {
 
     // "uuuu" é obrigatório com ResolverStyle.STRICT
     private static final DateTimeFormatter DATA = DateTimeFormatter.ofPattern("dd/MM/uuuu")
@@ -79,7 +79,7 @@ public class TratadorRegistro {
                     originais,
                     textoBusca));
         } catch (CampoInvalido e) {
-            return new Resultado.Rejeitado(new Rejeicao(matricula, e.campo, e.valor, e.getMessage()));
+            return new Resultado.Rejeitado(new RegistroRejeitado(matricula, e.campo, e.valor, e.getMessage()));
         }
     }
 
@@ -136,7 +136,7 @@ public class TratadorRegistro {
         record Valido(RegistroTratado registro) implements Resultado {
         }
 
-        record Rejeitado(Rejeicao rejeicao) implements Resultado {
+        record Rejeitado(RegistroRejeitado rejeicao) implements Resultado {
         }
     }
 
