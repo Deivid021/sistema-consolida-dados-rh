@@ -150,15 +150,17 @@ Versões estáveis conferidas no Maven Central em 2026-10-14:
 | springdoc-openapi | 3.1.x | publica o contrato e a tela do Swagger para a equipe de front |
 | Testcontainers | gerenciado pelo Boot | exige Docker, que já está instalado |
 
-Para a equipe de front (outro repositório): React com Vite e TypeScript, e Recharts para os
-gráficos.
+Front-end (pasta `frontend/` do mesmo repositório): React com Vite e TypeScript, e Recharts
+para os gráficos.
 
 ## 11. Hospedagem na AWS (crédito de US$ 50)
 
 - **Decisão**: uma instância EC2 `t4g.small` (2 GB de memória, ARM) rodando Docker Compose
-  com a aplicação e o PostgreSQL. O front-end fica em um bucket S3. Uma distribuição
-  CloudFront serve as duas coisas no mesmo endereço HTTPS: `/api/*` vai para a EC2 e o
-  resto para o S3.
+  com a aplicação e o PostgreSQL. O build do front-end vai dentro do jar do Spring Boot
+  (um contêiner serve o site e a API), e uma distribuição CloudFront na frente da EC2 dá o
+  endereço HTTPS. Revisado em 18/10/2026: antes o front ficava num bucket S3 atrás do mesmo
+  CloudFront; com front e back no mesmo repositório, o S3 virou só mais uma peça para
+  configurar e atualizar.
 - **Motivo**:
   - Mesmo domínio e HTTPS sem comprar domínio nem configurar certificado, e sem CORS.
   - Evita o bloqueio de conteúdo misto (página HTTPS chamando API HTTP).

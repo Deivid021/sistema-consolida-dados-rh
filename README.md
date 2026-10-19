@@ -46,7 +46,8 @@ ADMIN_TOKEN=token-local mvn spring-boot:run     # API em http://localhost:8080
   curl -H "X-Admin-Token: token-local" http://localhost:8080/api/v1/admin/cargas   # acompanhar
   ```
 
-Para o front-end rodando em outra porta, defina `CORS_ORIGENS=http://localhost:5173`.
+Em desenvolvimento o Vite repassa `/api` para a porta 8080, então não é preciso CORS. Só
+defina `CORS_ORIGENS=http://localhost:5173` se o front chamar a API direto em outra porta.
 
 ### Front-end
 
@@ -57,6 +58,15 @@ npm run dev     # http://localhost:5173, com a API do passo anterior rodando
 ```
 
 Detalhes das telas e da direção de design em [frontend/README.md](frontend/README.md).
+
+### Tudo num contêiner (como na AWS)
+
+O `Dockerfile` faz o build do front-end e o coloca dentro do jar: o site, a API e o Swagger
+saem do mesmo endereço, e rotas como `/servidores` são respondidas com o `index.html`.
+
+```bash
+docker compose --profile app up -d --build     # http://localhost:8080
+```
 
 ## Testes
 

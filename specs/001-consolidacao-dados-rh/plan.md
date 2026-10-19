@@ -13,10 +13,10 @@ Back-end único em Java 21 com Spring Boot que:
 2. publica os dados numa única transação, registrando as mudanças entre cargas;
 3. oferece uma API REST de consulta, indicadores, gráficos, alertas e exportação CSV/PDF.
 
-O front-end React fica em outro repositório e consome o contrato definido em
-[contracts/api-consulta.yaml](contracts/api-consulta.yaml). A hospedagem é uma EC2 com
-Docker Compose (aplicação e PostgreSQL) atrás de CloudFront, dentro do crédito AWS de
-US$ 50. Detalhes e alternativas em [research.md](research.md).
+O front-end React fica em `frontend/`, consome o contrato definido em
+[contracts/api-consulta.yaml](contracts/api-consulta.yaml) e é empacotado dentro do jar. A
+hospedagem é uma EC2 com Docker Compose (aplicação e PostgreSQL) atrás de CloudFront, dentro
+do crédito AWS de US$ 50. Detalhes e alternativas em [research.md](research.md).
 
 ## Contexto Técnico
 

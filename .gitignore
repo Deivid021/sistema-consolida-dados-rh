@@ -11,3 +11,6 @@ target/
 Thumbs.db
 *.tmp
 *.swp
+
+# Build do front-end copiado para dentro do jar
+src/main/resources/static/
