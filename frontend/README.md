@@ -10,7 +10,7 @@ Com o back-end rodando em `localhost:8080` (ver o README da raiz):
 ```bash
 npm install
 npm run dev      # http://localhost:5173 (o Vite repassa /api para o 8080)
-npm run build    # gera dist/
+npm run build    # gera dist/ (em produção o Dockerfile faz isso e põe o resultado dentro do jar)
 npm run lint
 ```
 

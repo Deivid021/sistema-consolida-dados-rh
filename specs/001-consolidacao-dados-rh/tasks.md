@@ -358,11 +358,11 @@ depois da US5.
   - **Instância**: EC2 `t4g.small` com Amazon Linux e Docker Compose.
   - **Variáveis**: `DB_*`, `ADMIN_TOKEN` e `CORS_ORIGENS`.
   - **Rede**: security group liberando a porta 8080 só para o CloudFront (prefix list gerenciada).
-  - **CloudFront**: comportamento `/api/*` para a EC2, sem cache e repassando a query string; padrão para o bucket S3 do front.
+  - **CloudFront**: uma origem só, a EC2, sem cache e repassando a query string. O front-end vai dentro do jar (revisado em 18/10; antes ficava num bucket S3).
   - **Custos**: alertas do AWS Budgets em US$ 35 e US$ 45.
   - **Backup**: `pg_dump` diário.
   - **Encerramento**: passos para desligar tudo ao fim do semestre.
-- [ ] T059 Implantar na AWS seguindo `docs/implantacao-aws.md`, rodar a carga em produção e conferir `GET /api/v1/status` pela URL do CloudFront (meta 20/10).
+- [ ] T059 Implantar na AWS seguindo `docs/implantacao-aws.md`, rodar a carga em produção e conferir `GET /api/v1/status` e as telas do front-end pela URL do CloudFront (meta 20/10).
 - [X] T060 [P] Criar `README.md` com objetivo, requisitos, como rodar localmente (link para o [quickstart.md](specs/001-consolidacao-dados-rh/quickstart.md)), link do Swagger e estrutura de pacotes.
 - [ ] T061 Executar o [quickstart.md](quickstart.md) completo e a validação por amostragem de 100 registros (§6, SC-003, revisão de qualidade com Kaue Gorges e Guilherme Antunes). Registrar o resultado em `docs/validacao-amostragem.md` (meta 21/10).
 
