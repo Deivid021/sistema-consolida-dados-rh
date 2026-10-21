@@ -1,0 +1,48 @@
+.carimbo {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--e-3);
+  border: 2px solid var(--carimbo);
+  border-radius: var(--raio);
+  color: var(--carimbo);
+  font-size: var(--t-pequeno);
+  line-height: 1.3;
+}
+
+.carimbo__data {
+  font-size: var(--t-sub);
+  font-weight: 700;
+  font-stretch: var(--largura-compacta);
+  font-variant-numeric: tabular-nums;
+}
+
+.carimbo__fonte {
+  margin-top: var(--e-1);
+  font-size: var(--t-legenda);
+}
+
+.carimbo--vazio {
+  border-style: dashed;
+  color: var(--tinta-suave);
+  border-color: var(--pauta);
+}
+
+@media (max-width: 52rem) {
+  .carimbo {
+    margin-top: 0;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: var(--e-2);
+  }
+
+  .carimbo__data {
+    font-size: var(--t-texto);
+  }
+
+  .carimbo__fonte {
+    margin-top: 0;
+  }
+}

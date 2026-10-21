@@ -1,0 +1,52 @@
+.barras {
+  display: flex;
+  flex-direction: column;
+  gap: var(--e-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.barras__item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.barras__rotulo {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--t-pequeno);
+  color: var(--tinta-suave);
+}
+
+/* O valor ocupa uma coluna fixa à direita da barra para nunca ser cortado */
+.barras__trilho {
+  display: flex;
+  align-items: center;
+  gap: var(--e-2);
+  padding-right: 3.5rem;
+}
+
+.barras__barra {
+  height: 14px;
+  min-width: 2px;
+  border-radius: 0 4px 4px 0;
+  background: var(--serie-1);
+}
+
+.barras__valor {
+  margin-right: -3.5rem;
+  font-size: var(--t-pequeno);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.barras__item:hover .barras__rotulo {
+  color: var(--tinta);
+}
+
+.barras__item:hover .barras__barra {
+  background: var(--caneta-escura);
+}

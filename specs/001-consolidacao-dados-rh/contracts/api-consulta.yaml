@@ -1,0 +1,585 @@
+openapi: 3.1.0
+info:
+  title: API de Consulta - Dados de RH de Gravataí/RS
+  version: 1.0.0
+  description: |
+    Contrato entre o back-end (este repositório) e o front-end (repositório separado).
+
+    Convenções:
+    - Todos os caminhos começam com `/api/v1`. Acesso público e somente leitura, exceto `/admin`.
+    - Datas em `yyyy-MM-dd`; valores monetários como número com 2 casas (ex.: 3905.17).
+      A formatação brasileira (R$ 3.905,17) é feita pelo front-end.
+    - Campos sem valor na fonte vêm como `null`; o front-end exibe "Não informado".
+    - Filtros de lista aceitam vários valores repetindo o parâmetro
+      (`?regime=CLT&regime=ESTATUTARIO`), combinados com OU. Filtros diferentes são
+      combinados com E (FR-015).
+    - Para filtrar por "Não informado", envie o valor `NAO_INFORMADO`.
+    - Todas as respostas de consulta trazem `ultimaAtualizacao`; o front-end DEVE exibi-la (FR-013).
+    - Erros seguem `Erro` (RFC 9457, application/problem+json).
+
+servers:
+  - url: /api/v1
+
+tags:
+  - name: Status
+  - name: Consulta
+    description: RF02
+  - name: Indicadores
+    description: RF03 e RF04 (distribuição por regime e secretaria)
+  - name: Gráficos
+    description: RF04
+  - name: Alertas
+    description: RF06
+  - name: Exportação
+    description: RF05
+  - name: Administração
+    description: RF01 (operação da carga)
+
+paths:
+  /status:
+    get:
+      tags: [Status]
+      summary: Situação dos dados publicados
+      operationId: obterStatus
+      responses:
+        '200':
+          description: Última carga bem-sucedida e teto em vigor
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Status' }
+
+  /vinculos:
+    get:
+      tags: [Consulta]
+      summary: Busca e filtra vínculos (FR-014 a FR-022)
+      operationId: listarVinculos
+      parameters:
+        - $ref: '#/components/parameters/q'
+        - $ref: '#/components/parameters/situacao'
+        - $ref: '#/components/parameters/regime'
+        - $ref: '#/components/parameters/classificacao'
+        - $ref: '#/components/parameters/secretaria'
+        - $ref: '#/components/parameters/localTrabalho'
+        - $ref: '#/components/parameters/cargo'
+        - $ref: '#/components/parameters/admissaoInicio'
+        - $ref: '#/components/parameters/admissaoFim'
+        - $ref: '#/components/parameters/desligamentoInicio'
+        - $ref: '#/components/parameters/desligamentoFim'
+        - $ref: '#/components/parameters/pagina'
+        - $ref: '#/components/parameters/tamanho'
+        - name: ordenacao
+          in: query
+          description: "Campo e direção, ex.: `salarioBase,desc`. Padrão: `nome,asc`."
+          schema:
+            type: string
+            pattern: '^(nome|matricula|situacao|regime|secretaria|cargo|nivel|salarioBase|dataAdmissao|dataDesligamento),(asc|desc)$'
+      responses:
+        '200':
+          description: Página de vínculos
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PaginaVinculos' }
+        '400': { $ref: '#/components/responses/FiltroInvalido' }
+
+  /filtros/opcoes:
+    get:
+      tags: [Consulta]
+      summary: Valores disponíveis para cada filtro (FR-016)
+      operationId: listarOpcoesFiltro
+      responses:
+        '200':
+          description: Opções com a quantidade de vínculos de cada uma
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/OpcoesFiltro' }
+
+  /indicadores/quadro:
+    get:
+      tags: [Indicadores]
+      summary: Quantidade de vínculos por situação, regime e secretaria (FR-024, FR-027, FR-029)
+      description: Os mesmos números alimentam os gráficos de distribuição por regime e secretaria.
+      operationId: obterQuadro
+      parameters:
+        - $ref: '#/components/parameters/q'
+        - $ref: '#/components/parameters/situacao'
+        - $ref: '#/components/parameters/regime'
+        - $ref: '#/components/parameters/classificacao'
+        - $ref: '#/components/parameters/secretaria'
+        - $ref: '#/components/parameters/localTrabalho'
+        - $ref: '#/components/parameters/cargo'
+        - $ref: '#/components/parameters/admissaoInicio'
+        - $ref: '#/components/parameters/admissaoFim'
+        - $ref: '#/components/parameters/desligamentoInicio'
+        - $ref: '#/components/parameters/desligamentoFim'
+      responses:
+        '200':
+          description: Totais por agrupamento; a soma de cada agrupamento é igual a `total`
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Quadro' }
+        '400': { $ref: '#/components/responses/FiltroInvalido' }
+
+  /indicadores/salarios:
+    get:
+      tags: [Indicadores]
+      summary: Quantidade, soma e média do salário base por cargo e nível (FR-025, FR-026)
+      description: |
+        Por padrão considera só vínculos ativos. Se o filtro `situacao` for enviado, ele prevalece.
+        Salários zero ou ausentes ficam fora da soma e da média e são contados em `quantidadeSemSalario`.
+      operationId: obterSalarios
+      parameters:
+        - $ref: '#/components/parameters/q'
+        - $ref: '#/components/parameters/situacao'
+        - $ref: '#/components/parameters/regime'
+        - $ref: '#/components/parameters/classificacao'
+        - $ref: '#/components/parameters/secretaria'
+        - $ref: '#/components/parameters/localTrabalho'
+        - $ref: '#/components/parameters/cargo'
+        - $ref: '#/components/parameters/admissaoInicio'
+        - $ref: '#/components/parameters/admissaoFim'
+        - $ref: '#/components/parameters/pagina'
+        - $ref: '#/components/parameters/tamanho'
+        - name: ordenacao
+          in: query
+          description: "Padrão: `soma,desc`."
+          schema:
+            type: string
+            pattern: '^(cargo|nivel|quantidade|soma|media),(asc|desc)$'
+      responses:
+        '200':
+          description: Página de grupos cargo + nível
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PaginaSalarios' }
+        '400': { $ref: '#/components/responses/FiltroInvalido' }
+
+  /graficos/movimentacao:
+    get:
+      tags: [Gráficos]
+      summary: Admissões e desligamentos por mês ou ano (FR-030)
+      operationId: obterMovimentacao
+      parameters:
+        - name: granularidade
+          in: query
+          required: true
+          schema: { type: string, enum: [MES, ANO] }
+        - name: inicio
+          in: query
+          required: true
+          schema: { type: string, format: date }
+        - name: fim
+          in: query
+          required: true
+          schema: { type: string, format: date }
+        - $ref: '#/components/parameters/regime'
+        - $ref: '#/components/parameters/secretaria'
+        - $ref: '#/components/parameters/cargo'
+      responses:
+        '200':
+          description: Uma linha por período, inclusive os períodos sem movimentação
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Movimentacao' }
+        '400': { $ref: '#/components/responses/FiltroInvalido' }
+
+  /graficos/motivos-rescisao:
+    get:
+      tags: [Gráficos]
+      summary: Dez motivos de desligamento mais frequentes no período (FR-031)
+      operationId: obterMotivosRescisao
+      parameters:
+        - name: inicio
+          in: query
+          required: true
+          schema: { type: string, format: date }
+        - name: fim
+          in: query
+          required: true
+          schema: { type: string, format: date }
+        - $ref: '#/components/parameters/regime'
+        - $ref: '#/components/parameters/secretaria'
+        - $ref: '#/components/parameters/cargo'
+      responses:
+        '200':
+          description: Até 10 motivos, mais "Outros" e "Não informado" quando houver
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/MotivosRescisao' }
+        '400': { $ref: '#/components/responses/FiltroInvalido' }
+
+  /alertas:
+    get:
+      tags: [Alertas]
+      summary: Vínculos sinalizados pelas regras de alerta (FR-037 a FR-042)
+      operationId: listarAlertas
+      parameters:
+        - name: regra
+          in: query
+          schema: { type: string, enum: [TETO, FORA_PADRAO] }
+        - $ref: '#/components/parameters/q'
+        - $ref: '#/components/parameters/regime'
+        - $ref: '#/components/parameters/secretaria'
+        - $ref: '#/components/parameters/cargo'
+        - $ref: '#/components/parameters/pagina'
+        - $ref: '#/components/parameters/tamanho'
+      responses:
+        '200':
+          description: Página de alertas e situação das regras
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PaginaAlertas' }
+
+  /exportacoes/{relatorio}:
+    get:
+      tags: [Exportação]
+      summary: Exporta um relatório em CSV ou PDF (FR-033 a FR-036)
+      description: |
+        Aceita os mesmos parâmetros de filtro e ordenação do endpoint correspondente:
+        `vinculos` → `/vinculos`, `quadro` → `/indicadores/quadro`,
+        `salarios` → `/indicadores/salarios`, `alertas` → `/alertas`.
+        O CSV traz todas as linhas do resultado; o PDF é recusado acima de 5.000 linhas.
+      operationId: exportar
+      parameters:
+        - name: relatorio
+          in: path
+          required: true
+          schema: { type: string, enum: [vinculos, quadro, salarios, alertas] }
+        - name: formato
+          in: query
+          required: true
+          schema: { type: string, enum: [csv, pdf] }
+      responses:
+        '200':
+          description: Arquivo para download (Content-Disposition com nome e data)
+          content:
+            text/csv:
+              schema: { type: string }
+            application/pdf:
+              schema: { type: string, format: binary }
+        '400': { $ref: '#/components/responses/FiltroInvalido' }
+        '422':
+          description: PDF com mais de 5.000 linhas; usar CSV ou refinar os filtros
+          content:
+            application/problem+json:
+              schema: { $ref: '#/components/schemas/Erro' }
+
+  /admin/cargas:
+    post:
+      tags: [Administração]
+      summary: Dispara uma carga manual
+      operationId: dispararCarga
+      security: [{ tokenAdmin: [] }]
+      responses:
+        '202':
+          description: Carga iniciada
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Carga' }
+        '401': { description: Token ausente ou inválido }
+        '409': { description: Já existe uma carga em andamento }
+    get:
+      tags: [Administração]
+      summary: Lista as últimas cargas, com totais e situação
+      operationId: listarCargas
+      security: [{ tokenAdmin: [] }]
+      parameters:
+        - $ref: '#/components/parameters/pagina'
+        - $ref: '#/components/parameters/tamanho'
+      responses:
+        '200':
+          description: Cargas da mais recente para a mais antiga
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [itens, total]
+                properties:
+                  itens: { type: array, items: { $ref: '#/components/schemas/Carga' } }
+                  total: { type: integer }
+        '401': { description: Token ausente ou inválido }
+
+components:
+  securitySchemes:
+    tokenAdmin:
+      type: apiKey
+      in: header
+      name: X-Admin-Token
+
+  parameters:
+    q:
+      name: q
+      in: query
+      description: Texto procurado em nome, cargo e matrícula, sem diferenciar maiúsculas e acentos (FR-019). Mínimo de 2 caracteres.
+      schema: { type: string, minLength: 2, maxLength: 100 }
+    situacao:
+      name: situacao
+      in: query
+      schema: { type: array, items: { $ref: '#/components/schemas/Situacao' } }
+      explode: true
+    regime:
+      name: regime
+      in: query
+      schema: { type: array, items: { type: string } }
+      explode: true
+    classificacao:
+      name: classificacao
+      in: query
+      schema: { type: array, items: { type: string } }
+      explode: true
+    secretaria:
+      name: secretaria
+      in: query
+      schema: { type: array, items: { type: string } }
+      explode: true
+    localTrabalho:
+      name: localTrabalho
+      in: query
+      schema: { type: array, items: { type: string } }
+      explode: true
+    cargo:
+      name: cargo
+      in: query
+      schema: { type: array, items: { type: string } }
+      explode: true
+    admissaoInicio:
+      name: admissaoInicio
+      in: query
+      schema: { type: string, format: date }
+    admissaoFim:
+      name: admissaoFim
+      in: query
+      schema: { type: string, format: date }
+    desligamentoInicio:
+      name: desligamentoInicio
+      in: query
+      description: Quando informado (ou `desligamentoFim`), retorna só desligados (FR-018).
+      schema: { type: string, format: date }
+    desligamentoFim:
+      name: desligamentoFim
+      in: query
+      schema: { type: string, format: date }
+    pagina:
+      name: pagina
+      in: query
+      description: Começa em 0.
+      schema: { type: integer, minimum: 0, default: 0 }
+    tamanho:
+      name: tamanho
+      in: query
+      schema: { type: integer, minimum: 1, maximum: 100, default: 20 }
+
+  responses:
+    FiltroInvalido:
+      description: Filtro inválido, por exemplo data inicial maior que a final (FR-017)
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Erro' }
+
+  schemas:
+    Situacao:
+      type: string
+      enum: [TRABALHANDO, AFASTADO, DESLIGADO]
+      description: DESLIGADO corresponde a "Demitido" na fonte (FR-023).
+
+    Status:
+      type: object
+      required: [ultimaAtualizacao, totalVinculos, teto]
+      properties:
+        ultimaAtualizacao:
+          type: [string, 'null']
+          format: date-time
+          description: Fim da última carga bem-sucedida; nulo antes da primeira carga.
+        totalVinculos: { type: integer }
+        totalAtivos: { type: integer }
+        fonte:
+          type: string
+          example: API de Dados Abertos de Pessoal - Prefeitura de Gravataí/RS
+        teto: { $ref: '#/components/schemas/Teto' }
+
+    Teto:
+      type: object
+      required: [origem]
+      properties:
+        valor: { type: [number, 'null'] }
+        origem:
+          type: string
+          enum: [FONTE, MANUAL, SUSPENSA]
+          description: SUSPENSA quando não há prefeito ativo na fonte nem valor configurado.
+        fundamento: { type: [string, 'null'] }
+
+    Vinculo:
+      type: object
+      required: [matricula, situacao]
+      properties:
+        matricula: { type: string, example: 20-01 }
+        nome: { type: [string, 'null'] }
+        situacao: { $ref: '#/components/schemas/Situacao' }
+        regime: { type: [string, 'null'] }
+        classificacao: { type: [string, 'null'] }
+        secretaria: { type: [string, 'null'] }
+        localTrabalho: { type: [string, 'null'] }
+        cargo: { type: [string, 'null'] }
+        funcao: { type: [string, 'null'] }
+        nivel: { type: [string, 'null'] }
+        salarioBase: { type: [number, 'null'], example: 3905.17 }
+        horasMensais: { type: [number, 'null'], description: Em horas, ex. 180 }
+        dataAdmissao: { type: [string, 'null'], format: date }
+        dataDesligamento: { type: [string, 'null'], format: date }
+        motivoDesligamento: { type: [string, 'null'] }
+        ativoNaFonte:
+          type: boolean
+          description: Falso se o vínculo não veio na última carga (FR-011).
+
+    PaginaVinculos:
+      type: object
+      required: [itens, total, pagina, tamanho, ultimaAtualizacao]
+      properties:
+        itens: { type: array, items: { $ref: '#/components/schemas/Vinculo' } }
+        total: { type: integer, description: Total de vínculos que atendem aos filtros }
+        pagina: { type: integer }
+        tamanho: { type: integer }
+        ultimaAtualizacao: { type: [string, 'null'], format: date-time }
+
+    Opcao:
+      type: object
+      required: [quantidade]
+      properties:
+        valor: { type: [string, 'null'], description: Nulo representa "Não informado" }
+        quantidade: { type: integer }
+
+    OpcoesFiltro:
+      type: object
+      properties:
+        situacao: { type: array, items: { $ref: '#/components/schemas/Opcao' } }
+        regime: { type: array, items: { $ref: '#/components/schemas/Opcao' } }
+        classificacao: { type: array, items: { $ref: '#/components/schemas/Opcao' } }
+        secretaria: { type: array, items: { $ref: '#/components/schemas/Opcao' } }
+        localTrabalho: { type: array, items: { $ref: '#/components/schemas/Opcao' } }
+        cargo: { type: array, items: { $ref: '#/components/schemas/Opcao' } }
+
+    Contagem:
+      type: object
+      required: [quantidade]
+      properties:
+        valor: { type: [string, 'null'] }
+        quantidade: { type: integer }
+
+    Quadro:
+      type: object
+      required: [total, porSituacao, porRegime, porSecretaria, ultimaAtualizacao]
+      properties:
+        total: { type: integer }
+        porSituacao: { type: array, items: { $ref: '#/components/schemas/Contagem' } }
+        porRegime: { type: array, items: { $ref: '#/components/schemas/Contagem' } }
+        porSecretaria: { type: array, items: { $ref: '#/components/schemas/Contagem' } }
+        ultimaAtualizacao: { type: [string, 'null'], format: date-time }
+
+    GrupoSalarial:
+      type: object
+      required: [quantidade, quantidadeSemSalario, soma]
+      properties:
+        cargo: { type: [string, 'null'] }
+        nivel: { type: [string, 'null'] }
+        quantidade: { type: integer, description: Vínculos com salário maior que zero }
+        quantidadeSemSalario: { type: integer }
+        soma: { type: number }
+        media: { type: [number, 'null'] }
+
+    PaginaSalarios:
+      type: object
+      required: [itens, total, pagina, tamanho, ultimaAtualizacao]
+      properties:
+        itens: { type: array, items: { $ref: '#/components/schemas/GrupoSalarial' } }
+        total: { type: integer, description: Total de grupos }
+        pagina: { type: integer }
+        tamanho: { type: integer }
+        ultimaAtualizacao: { type: [string, 'null'], format: date-time }
+
+    Movimentacao:
+      type: object
+      required: [granularidade, periodos, ultimaAtualizacao]
+      properties:
+        granularidade: { type: string, enum: [MES, ANO] }
+        periodos:
+          type: array
+          items:
+            type: object
+            required: [periodo, admissoes, desligamentos]
+            properties:
+              periodo: { type: string, description: "yyyy-MM (MES) ou yyyy (ANO)", example: 2026-03 }
+              admissoes: { type: integer }
+              desligamentos: { type: integer }
+        ultimaAtualizacao: { type: [string, 'null'], format: date-time }
+
+    MotivosRescisao:
+      type: object
+      required: [total, motivos, ultimaAtualizacao]
+      properties:
+        total: { type: integer }
+        motivos:
+          type: array
+          items:
+            type: object
+            required: [motivo, quantidade]
+            properties:
+              motivo:
+                type: string
+                description: Texto da fonte, ou "Outros" e "Não informado"
+              quantidade: { type: integer }
+        ultimaAtualizacao: { type: [string, 'null'], format: date-time }
+
+    Alerta:
+      type: object
+      required: [regra, vinculo, valorVinculo, valorReferencia, diferenca, diferencaPercentual, descricaoRegra]
+      properties:
+        regra: { type: string, enum: [TETO, FORA_PADRAO] }
+        vinculo: { $ref: '#/components/schemas/Vinculo' }
+        valorVinculo: { type: number }
+        valorReferencia: { type: number, description: Teto ou mediana do grupo }
+        diferenca: { type: number }
+        diferencaPercentual: { type: number }
+        grupoTamanho: { type: [integer, 'null'] }
+        descricaoRegra:
+          type: string
+          description: Texto que explica o critério; o front-end exibe junto ao aviso de que é sinalização para verificação (FR-041).
+          example: Salário base 25,3% acima da mediana dos 12 vínculos ativos com o mesmo cargo, nível e carga horária.
+
+    PaginaAlertas:
+      type: object
+      required: [itens, total, pagina, tamanho, teto, percentualForaPadrao, ultimaAtualizacao]
+      properties:
+        itens: { type: array, items: { $ref: '#/components/schemas/Alerta' } }
+        total: { type: integer }
+        pagina: { type: integer }
+        tamanho: { type: integer }
+        teto: { $ref: '#/components/schemas/Teto' }
+        percentualForaPadrao: { type: number, example: 20 }
+        ultimaAtualizacao: { type: [string, 'null'], format: date-time }
+
+    Carga:
+      type: object
+      required: [id, origem, status, inicio]
+      properties:
+        id: { type: integer }
+        origem: { type: string, enum: [AGENDADA, MANUAL] }
+        status: { type: string, enum: [EM_ANDAMENTO, SUCESSO, FALHA, INCONSISTENTE] }
+        inicio: { type: string, format: date-time }
+        fim: { type: [string, 'null'], format: date-time }
+        totalInformado: { type: [integer, 'null'] }
+        paginasLidas: { type: integer }
+        totalPaginas: { type: [integer, 'null'] }
+        gravados: { type: integer }
+        rejeitados: { type: integer }
+        novos: { type: [integer, 'null'] }
+        alterados: { type: [integer, 'null'] }
+        naoEncontrados: { type: [integer, 'null'] }
+        mensagem: { type: [string, 'null'] }
+
+    Erro:
+      type: object
+      required: [title, status]
+      properties:
+        type: { type: string }
+        title: { type: string }
+        status: { type: integer }
+        detail: { type: string, description: Mensagem em português para exibir ao usuário }

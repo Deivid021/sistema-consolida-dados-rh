@@ -1,0 +1,44 @@
+# Desenvolvimento: `docker compose up -d banco` (porta local 5433)
+# Produção (EC2): `docker compose --profile app up -d --build`, com DB_SENHA e ADMIN_TOKEN no .env
+services:
+  banco:
+    image: postgres:17
+    environment:
+      POSTGRES_DB: rh
+      POSTGRES_USER: rh
+      POSTGRES_PASSWORD: ${DB_SENHA:-rh}
+    ports:
+      - "127.0.0.1:5433:5432"
+    volumes:
+      - dados-banco:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U rh -d rh"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  app:
+    build: .
+    depends_on:
+      banco:
+        condition: service_healthy
+    environment:
+      DB_URL: jdbc:postgresql://banco:5432/rh
+      DB_USUARIO: rh
+      DB_SENHA: ${DB_SENHA:-rh}
+      ADMIN_TOKEN: ${ADMIN_TOKEN:-}
+      CORS_ORIGENS: ${CORS_ORIGENS:-}
+      TZ: America/Sao_Paulo
+    ports:
+      - "8080:8080"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/actuator/health || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    restart: unless-stopped
+    profiles: ["app"]
+
+volumes:
+  dados-banco:

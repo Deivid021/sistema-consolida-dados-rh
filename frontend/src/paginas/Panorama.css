@@ -1,0 +1,94 @@
+.panorama {
+  display: flex;
+  flex-direction: column;
+  gap: var(--e-12);
+  max-width: 76rem;
+}
+
+.panorama__abertura {
+  display: flex;
+  flex-direction: column;
+  gap: var(--e-4);
+}
+
+/* A manchete responde à pergunta em palavras; números em algarismos proporcionais */
+.panorama__manchete {
+  max-width: 24ch;
+  font-size: clamp(2rem, 1.2rem + 2.6vw, var(--t-manchete));
+  font-weight: 700;
+  font-stretch: var(--largura-titulo);
+  line-height: 1.08;
+  letter-spacing: -0.02em;
+  font-variant-numeric: proportional-nums;
+}
+
+.panorama__explicacao {
+  color: var(--tinta-suave);
+  max-width: 60ch;
+}
+
+.panorama__regua {
+  margin-top: calc(var(--e-6) * -1);
+}
+
+.panorama__colunas {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--e-12);
+  padding-top: var(--e-8);
+  border-top: 1px solid var(--pauta);
+}
+
+.panorama__colunas > section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--e-4);
+  min-width: 0;
+}
+
+.panorama__cabeca {
+  display: flex;
+  flex-direction: column;
+  gap: var(--e-1);
+}
+
+.panorama__cabeca h2 {
+  font-size: var(--t-sub);
+}
+
+.panorama__cabeca p {
+  color: var(--tinta-suave);
+  font-size: var(--t-pequeno);
+}
+
+.panorama__mais {
+  font-size: var(--t-pequeno);
+  width: fit-content;
+}
+
+.panorama__verificar {
+  padding-left: var(--e-6);
+  border-left: 3px solid var(--alerta);
+}
+
+.panorama__verificar .botao {
+  width: fit-content;
+}
+
+.panorama__alertas-numero {
+  font-size: var(--t-sub);
+  font-stretch: var(--largura-titulo);
+}
+
+.panorama__alertas-numero strong {
+  font-size: var(--t-titulo);
+  color: var(--alerta);
+  font-variant-numeric: proportional-nums;
+}
+
+@media (max-width: 64rem) {
+  .panorama__colunas {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--e-8);
+  }
+}

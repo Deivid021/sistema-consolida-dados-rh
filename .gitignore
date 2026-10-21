@@ -1,0 +1,19 @@
+target/
+*.class
+*.jar
+*.log
+.env
+.env.*
+.idea/
+*.iml
+.vscode/
+.DS_Store
+Thumbs.db
+*.tmp
+*.swp
+
+# Build do front-end copiado para dentro do jar
+src/main/resources/static/
+
+# Documentos acadêmicos do projeto (ficam só na máquina local)
+docs-project/
