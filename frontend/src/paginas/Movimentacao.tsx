@@ -55,10 +55,7 @@ export function Movimentacao() {
             { valor: 'MES' as Granularidade, rotulo: 'Por mês' },
           ]}
           selecionados={[granularidade]}
-          aoMudar={([g]) => {
-            filtros.definir('granularidade', g)
-            filtros.definir('inicio', null)
-          }}
+          aoMudar={([g]) => filtros.definir({ granularidade: g, inicio: null })}
         />
         <label className="campo campo--curto">
           <span className="campo__rotulo">De</span>
