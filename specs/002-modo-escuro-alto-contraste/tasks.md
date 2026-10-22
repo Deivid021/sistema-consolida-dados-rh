@@ -24,13 +24,13 @@ paralelo (arquivos diferentes, sem dependência).
 ## Fase 1: Preparação
 
 - [X] T001 Emendar `.specify/memory/constitution.md` para a v1.1.0, incluindo o RNF04 no princípio III e no V (Solicitação de Mudança 3c).
-- [ ] T002 [P] Adicionar `axe-core` e `puppeteer-core` como dependências de desenvolvimento em `frontend/package.json` e os scripts `verificar:contraste` e `verificar:acessibilidade`.
+- [X] T002 [P] Adicionar `axe-core` e `puppeteer-core` como dependências de desenvolvimento em `frontend/package.json` e os scripts `verificar:contraste` e `verificar:acessibilidade`.
 
 ## Fase 2: Fundação (bloqueia as histórias)
 
-- [ ] T003 Em `frontend/src/estilos/tokens.css`, criar os tokens que faltavam (`--sobre-caneta`, `--sobre-alerta`, `--caneta-fundo-forte`, `--linha-destaque`, `--sombra`) e o bloco `:root[data-tema="escuro"]` com os valores de [research.md](research.md) §1, incluindo as séries dos gráficos (§2) e `color-scheme: dark`.
-- [ ] T004 [P] Trocar as cores fixas por tokens em `frontend/src/componentes/Filtros.css`, `Tabela.css`, `Layout.css` e `graficos/Graficos.css` (FR-008).
-- [ ] T005 Criar `frontend/scripts/verificar-contraste.mjs`: ler os dois temas de `tokens.css` e conferir os pares de cor da interface (texto ≥ 7:1 no escuro e ≥ 4,5:1 no claro; bordas, foco e marcas ≥ 3:1). Sai com erro se algum par falhar (FR-009 a FR-011, SC-002).
+- [X] T003 Em `frontend/src/estilos/tokens.css`, criar os tokens que faltavam (`--sobre-caneta`, `--sobre-alerta`, `--caneta-fundo-forte`, `--linha-destaque`, `--sombra`) e o bloco `:root[data-tema="escuro"]` com os valores de [research.md](research.md) §1, incluindo as séries dos gráficos (§2) e `color-scheme: dark`.
+- [X] T004 [P] Trocar as cores fixas por tokens em `frontend/src/componentes/Filtros.css`, `Tabela.css`, `Layout.css` e `graficos/Graficos.css` (FR-008).
+- [X] T005 Criar `frontend/scripts/verificar-contraste.mjs`: ler os dois temas de `tokens.css` e conferir os pares de cor da interface (texto ≥ 7:1 no escuro e ≥ 4,5:1 no claro; bordas, foco e marcas ≥ 3:1). Sai com erro se algum par falhar (FR-009 a FR-011, SC-002).
 
 ## Fase 3: História 1, ligar o modo escuro (P1)
 
@@ -39,9 +39,9 @@ paralelo (arquivos diferentes, sem dependência).
 **Teste independente**: em qualquer tela, escolher **Escuro** em **Aparência** e conferir a
 mudança sem recarregar e sem perder filtros.
 
-- [ ] T006 [US1] Criar `frontend/src/util/tema.ts`: tema em uso no atributo `data-tema` do `<html>`, escolha no `localStorage` (com `try/catch`), hook `useTema()` com `useSyncExternalStore` e `escolherTema()` (FR-001, FR-003, FR-006).
-- [ ] T007 [US1] Permitir rótulo com texto oculto para leitor de tela em `frontend/src/componentes/Alternativas.tsx` e criar `frontend/src/componentes/SeletorTema.tsx` ("Aparência": Claro / Escuro, anunciado como "Escuro de alto contraste") (FR-004).
-- [ ] T008 [US1] Colocar o `SeletorTema` no índice em `frontend/src/componentes/Layout.tsx` e `Layout.css`, no rodapé do índice no computador e na faixa do topo no celular (FR-002, RNF03).
+- [X] T006 [US1] Criar `frontend/src/util/tema.ts`: tema em uso no atributo `data-tema` do `<html>`, escolha no `localStorage` (com `try/catch`), hook `useTema()` com `useSyncExternalStore` e `escolherTema()` (FR-001, FR-003, FR-006).
+- [X] T007 [US1] Permitir rótulo com texto oculto para leitor de tela em `frontend/src/componentes/Alternativas.tsx` e criar `frontend/src/componentes/SeletorTema.tsx` ("Aparência": Claro / Escuro, anunciado como "Escuro de alto contraste") (FR-004).
+- [X] T008 [US1] Colocar o `SeletorTema` no índice em `frontend/src/componentes/Layout.tsx` e `Layout.css`, no rodapé do índice no computador e na faixa do topo no celular (FR-002, RNF03).
 
 ## Fase 4: História 2, ler tudo com conforto (P1)
 
@@ -50,12 +50,12 @@ mudança sem recarregar e sem perder filtros.
 **Teste independente**: `npm run verificar:contraste` e `npm run verificar:acessibilidade`
 sem falhas, mais as capturas das 6 telas no escuro.
 
-- [ ] T009 [US2] Em `frontend/src/componentes/graficos/cores.ts`, exportar a paleta dos dois temas e o hook `usePaleta()`; generalizar `corDoTextoSobre` para receber as duas cores candidatas (FR-012).
-- [ ] T010 [P] [US2] Usar `usePaleta()` em `graficos/LinhasTempo.tsx` (linhas, grade, eixos, cursor, ponto ativo) (FR-008, FR-010).
-- [ ] T011 [P] [US2] Usar `usePaleta()` em `graficos/Regua.tsx`; no escuro, rótulo dentro do segmento com fundo `--papel` e texto `--tinta` ([research.md](research.md) §2) (FR-009).
-- [ ] T012 [US2] Em `frontend/src/estilos/base.css`, regras de `forced-colors` (marcas dos gráficos com `forced-color-adjust: none`, foco com `Highlight`) (FR-014, FR-015).
-- [ ] T013 [US2] Criar `frontend/scripts/verificar-acessibilidade.mjs`: abrir as 6 telas no Google Chrome (`puppeteer-core`) nos dois temas e rodar o `axe-core` com `color-contrast` e `color-contrast-enhanced`; falhar se houver violação (SC-003).
-- [ ] T014 [US2] Conferir visualmente as 6 telas no escuro, no computador e em 360 px, por capturas de tela, e corrigir o que aparecer (SC-006).
+- [X] T009 [US2] Em `frontend/src/componentes/graficos/cores.ts`, exportar a paleta dos dois temas e o hook `usePaleta()`; generalizar `corDoTextoSobre` para receber as duas cores candidatas (FR-012).
+- [X] T010 [P] [US2] Usar `usePaleta()` em `graficos/LinhasTempo.tsx` (linhas, grade, eixos, cursor, ponto ativo) (FR-008, FR-010).
+- [X] T011 [P] [US2] Usar `usePaleta()` em `graficos/Regua.tsx`; no escuro, rótulo dentro do segmento com fundo `--papel` e texto `--tinta` ([research.md](research.md) §2) (FR-009).
+- [X] T012 [US2] Em `frontend/src/estilos/base.css`, regras de `forced-colors` (marcas dos gráficos com `forced-color-adjust: none`, foco com `Highlight`) (FR-014, FR-015).
+- [X] T013 [US2] Criar `frontend/scripts/verificar-acessibilidade.mjs`: abrir as 6 telas no Google Chrome (`puppeteer-core`) nos dois temas e rodar o `axe-core` com `color-contrast` e `color-contrast-enhanced`; falhar se houver violação (SC-003).
+- [X] T014 [US2] Conferir visualmente as 6 telas no escuro, no computador e em 360 px, por capturas de tela, e corrigir o que aparecer (SC-006).
 
 ## Fase 5: História 3, respeitar a preferência (P2)
 
@@ -64,14 +64,35 @@ sem falhas, mais as capturas das 6 telas no escuro.
 **Teste independente**: janela anônima com o sistema operacional em escuro abre no escuro;
 recarregar depois de escolher mantém o tema.
 
-- [ ] T015 [US3] Script síncrono no `<head>` de `frontend/index.html` que aplica `data-tema` antes da primeira pintura: escolha guardada, senão preferência do sistema operacional (FR-005, FR-007).
-- [ ] T016 [US3] Em `util/tema.ts`, acompanhar a mudança de preferência do sistema operacional enquanto a pessoa não escolheu um tema (caso-limite da especificação).
+- [X] T015 [US3] Script síncrono no `<head>` de `frontend/index.html` que aplica `data-tema` antes da primeira pintura: escolha guardada, senão preferência do sistema operacional (FR-005, FR-007).
+- [X] T016 [US3] Em `util/tema.ts`, acompanhar a mudança de preferência do sistema operacional enquanto a pessoa não escolheu um tema (caso-limite da especificação).
 
 ## Fase 6: Acabamento
 
-- [ ] T017 [P] Atualizar `frontend/README.md` (temas, tokens e verificações) e o `README.md` da raiz (RNF04).
-- [ ] T018 Rodar o [quickstart.md](quickstart.md) inteiro, registrar o resultado e conferir que as exportações CSV e PDF não mudaram (FR-016).
+- [X] T017 [P] Atualizar `frontend/README.md` (temas, tokens e verificações) e o `README.md` da raiz (RNF04).
+- [X] T018 Rodar o [quickstart.md](quickstart.md) inteiro, registrar o resultado e conferir que as exportações CSV e PDF não mudaram (FR-016).
 - [ ] T019 Revisão de qualidade por Kaue e Guilherme no tema escuro, com registro no Termo de Aceite da Entrega.
+
+## Resultado da implementação (2026-10-21)
+
+- **T005 e T013**: as verificações automáticas acharam problemas antigos do tema claro,
+  corrigidos junto:
+  - `--tinta-apagada` (legendas e eixos) estava em 4,21:1 sobre o papel, abaixo do AA; passou
+    para `#636f7a` (4,78:1).
+  - o percentual sobre o segmento laranja da régua estava em 4,15:1; agora qualquer rótulo
+    dentro de uma marca ganha etiqueta de papel quando nenhuma cor de texto atinge o mínimo
+    do tema (no escuro, sempre).
+  - os segmentos da régua tinham `aria-label` sem papel válido; agora são `role="img"` dentro
+    de um `role="group"`.
+- **Pendência fora do RNF04**: no tema claro, a borda dos campos e botões (`--pauta`) fica em
+  1,4:1, abaixo dos 3:1 do critério 1.4.11. É uma decisão visual da funcionalidade 001; o
+  script mede a `--pauta` só no tema escuro. Corrigir exige escurecer as bordas do tema claro.
+- **T014**: capturas das 6 telas nos dois temas, no computador e em 360 px, sem rolagem
+  horizontal. Comportamento conferido no Chrome sem interface: sistema operacional escuro abre
+  no escuro, tema aplicado antes do React, troca pelo teclado, filtros mantidos, escolha
+  guardada e respeitada ao recarregar, armazenamento bloqueado sem erro.
+- **T018**: `verificar:contraste`, `verificar:acessibilidade`, `lint` e `build` sem falhas. O
+  back-end não mudou, então as exportações CSV e PDF são as mesmas.
 
 ## Dependências
 

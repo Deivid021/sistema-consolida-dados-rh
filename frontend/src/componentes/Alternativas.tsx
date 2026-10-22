@@ -1,14 +1,15 @@
-import { useId } from 'react'
+import { useId, type ReactNode } from 'react'
 import './Filtros.css'
 
 interface Opcao<T extends string> {
   valor: T
-  rotulo: string
+  /** Pode trazer texto só para leitor de tela (classe visualmente-oculto). */
+  rotulo: ReactNode
 }
 
 /**
  * Grupo de alternativas como botões encostados. Com {@code multiplo}, cada opção liga e
- * desliga (situação); sem ele, é uma escolha só (regra, granularidade).
+ * desliga (situação); sem ele, é uma escolha só (regra, granularidade, aparência).
  */
 export function Alternativas<T extends string>({
   legenda,

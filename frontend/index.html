@@ -6,6 +6,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="Quadro de pessoal da Prefeitura de Gravataí/RS: servidores, salários, entradas e saídas, a partir dos dados abertos do município." />
     <title>Pessoal da Prefeitura de Gravataí</title>
+    <script>
+      // Aplica o tema antes da primeira pintura, para não piscar o tema errado (RNF04).
+      // Mesma regra de src/util/tema.ts: escolha guardada, senão a do sistema operacional.
+      ;(function () {
+        var tema = null
+        try {
+          tema = localStorage.getItem('tema')
+        } catch (e) {}
+        if (tema !== 'claro' && tema !== 'escuro') {
+          tema = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'escuro' : 'claro'
+        }
+        document.documentElement.dataset.tema = tema
+      })()
+    </script>
   </head>
   <body>
     <div id="root"></div>

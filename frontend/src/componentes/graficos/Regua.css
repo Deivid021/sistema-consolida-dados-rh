@@ -41,6 +41,14 @@
   white-space: nowrap;
 }
 
+/* Etiqueta de papel sob o percentual quando a cor da série não dá contraste ao texto (no escuro, sempre: RNF04) */
+.regua__rotulo--com-fundo {
+  padding: 0 var(--e-1);
+  border-radius: 2px;
+  background: var(--papel);
+  color: var(--tinta);
+}
+
 .regua__legenda {
   min-height: 1.6rem;
 }
