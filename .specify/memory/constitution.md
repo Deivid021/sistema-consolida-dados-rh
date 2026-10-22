@@ -37,7 +37,9 @@ comparada ao Portal da Transparência) e risco R08 (API fora do ar ou incompleta
 ### III. Escopo fechado nos seis requisitos funcionais
 
 - Toda especificação, plano e tarefa DEVE apontar para pelo menos um dos requisitos
-  RF01 a RF06 ou RNF01 a RNF03, conforme a Declaração do Escopo.
+  RF01 a RF06 ou RNF01 a RNF04, conforme a Declaração do Escopo e as Solicitações de
+  Mudança aprovadas. O RNF04 (Modo Escuro de Alto Contraste) veio da Solicitação de
+  Mudança 3c, aprovada pelo patrocinador em 08/10/2026.
 - Funcionalidade sem requisito correspondente NÃO DEVE ser implementada.
 - Mudança de escopo, prazo ou entrega só é aceita com Solicitação de Mudança registrada e
   aprovada pelo patrocinador.
@@ -68,6 +70,8 @@ dedicação parcial de cerca de 8 horas semanais.
 - As consultas DEVEM responder em até 3 segundos (RNF02).
 - A interface DEVE ser responsiva e utilizável em computadores e dispositivos móveis
   (RNF03).
+- A interface DEVE oferecer o Modo Escuro de Alto Contraste, com contraste verificado
+  por medição, conforme as diretrizes de acessibilidade WCAG 2.1 (RNF04).
 - Uma entrega só é considerada concluída quando seus critérios de aceitação foram
   verificados e o resultado foi registrado.
 
@@ -77,7 +81,8 @@ prejudicam a transparência que o projeto se propõe a ampliar.
 ## Restrições Técnicas e Legais
 
 - **Back-end**: Java 21 com Spring Boot, expondo uma API REST de consulta.
-- **Front-end**: React, como aplicação web responsiva, em repositório próprio.
+- **Front-end**: React, como aplicação web responsiva, na pasta `frontend/` do mesmo
+  repositório, empacotada junto com o back-end.
 - **Banco de dados**: PostgreSQL.
 - **Hospedagem**: AWS, conforme o Dicionário da EAP, custeada por crédito acadêmico de
   US$ 50 válido até o fim do semestre letivo. O gasto NÃO DEVE ultrapassar o crédito.
@@ -126,4 +131,9 @@ apresentação final em 22/10/2026.
   princípios. Os princípios I e III não admitem exceção; exceções aos demais DEVEM ser
   justificadas no plano.
 
-**Versão**: 1.0.1 | **Ratificada em**: 2026-10-13 | **Última emenda**: 2026-10-13
+**Versão**: 1.1.0 | **Ratificada em**: 2026-10-13 | **Última emenda**: 2026-10-21
+
+Histórico de emendas:
+- 1.1.0 (2026-10-21): inclui o RNF04 (Modo Escuro de Alto Contraste), aprovado pela
+  Solicitação de Mudança 3c; registra o front-end no mesmo repositório do back-end.
+- 1.0.1 (2026-10-13): correções de redação.
