@@ -1,6 +1,8 @@
 /*
  * Tokens de design. Direção: a papelada do serviço público (ofício, contracheque,
- * carimbo de protocolo, caneta azul). Só tema claro, de propósito: é "papel".
+ * carimbo de protocolo, caneta azul). Dois temas: o claro é o ofício; o Modo Escuro de Alto
+ * Contraste (RNF04) é o papel-carbono, com os mesmos papéis de cor e contraste AAA.
+ * Os pares de cor são medidos por `npm run verificar:contraste`.
  */
 :root {
   color-scheme: light;
@@ -10,7 +12,7 @@
   --papel-elevado: #ffffff;  /* superfícies sobre o papel: tabelas, painéis */
   --tinta: #1d2a36;          /* texto principal: preto-azulado de caneta */
   --tinta-suave: #4a5864;    /* texto secundário */
-  --tinta-apagada: #6b7883;  /* legendas, eixos */
+  --tinta-apagada: #636f7a;  /* legendas, eixos (4,8:1 sobre o papel) */
   --pauta: #cbd3d8;          /* linhas de tabela e grades */
   --pauta-leve: #e3e8eb;
   --caneta: #2447a6;         /* ações, links, foco */
@@ -19,6 +21,13 @@
   --carimbo: #6b3fa0;        /* data de atualização e destaques */
   --alerta: #b42318;         /* só alertas e erros */
   --alerta-fundo: #fbeceb;
+
+  /* Texto sobre fundos fortes, hover e sombra */
+  --sobre-caneta: #ffffff;
+  --sobre-alerta: #ffffff;
+  --caneta-fundo-forte: #d9e1f4;
+  --linha-destaque: #f8faf9;
+  --sombra: 0 2px 8px rgb(29 42 54 / 0.12);
 
   /* Séries dos gráficos, em ordem fixa (validada para daltonismo pela skill de dataviz) */
   --serie-1: #2447a6;
@@ -57,4 +66,41 @@
   --raio: 3px;
   --medida: 68ch;
   --largura-indice: 15rem;
+}
+
+/*
+ * Modo Escuro de Alto Contraste (RNF04): papel-carbono azul-escuro, sem preto puro, para
+ * reduzir o ofuscamento. Texto ≥ 7:1 (WCAG 1.4.6, AAA); bordas e marcas ≥ 3:1 (1.4.11).
+ * Séries dos gráficos na mesma ordem de matizes do claro, validadas para o fundo escuro.
+ */
+:root[data-tema='escuro'] {
+  color-scheme: dark;
+
+  --papel: #0f1724;
+  --papel-elevado: #18222f;
+  --tinta: #f3f6f9;
+  --tinta-suave: #d3dbe3;
+  --tinta-apagada: #b9c4ce;
+  --pauta: #7d8b98;
+  --pauta-leve: #2f3b4a;
+  --caneta: #9ab8ff;
+  --caneta-escura: #c3d4ff;
+  --caneta-fundo: #1c2c4f;
+  --carimbo: #d2b4ff;
+  --alerta: #ff9b91;
+  --alerta-fundo: #3b1a19;
+
+  --sobre-caneta: #0f1724;
+  --sobre-alerta: #0f1724;
+  --caneta-fundo-forte: #22375f;
+  --linha-destaque: #202c3b;
+  --sombra: 0 0 0 1px var(--pauta);
+
+  --serie-1: #628bea;
+  --serie-2: #d37812;
+  --serie-3: #05a388;
+  --serie-4: #915dc5;
+  --serie-5: #d9668e;
+  --serie-6: #889930;
+  --serie-outros: #a3adb6;
 }

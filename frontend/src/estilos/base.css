@@ -96,3 +96,28 @@ table {
     transition-duration: 0.01ms !important;
   }
 }
+
+/*
+ * Cores forçadas do sistema operacional (ex.: temas de contraste do Windows): o sistema troca
+ * as cores, e as marcas dos gráficos, feitas de fundo, sumiriam. Elas mantêm a cor da série
+ * (a legenda e a tabela do gráfico continuam lá), e o foco usa a cor de destaque do sistema
+ * (RNF04, FR-014).
+ */
+@media (forced-colors: active) {
+  .regua__segmento,
+  .barras__barra,
+  .legenda__marca,
+  .dica__chave {
+    forced-color-adjust: none;
+  }
+
+  :focus-visible,
+  .alternativas__opcao input:focus-visible + span {
+    outline-color: Highlight;
+  }
+
+  .alternativas__opcao input:checked + span {
+    outline: 2px solid Highlight;
+    outline-offset: -2px;
+  }
+}

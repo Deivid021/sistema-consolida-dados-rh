@@ -20,7 +20,7 @@
   background: var(--papel-elevado);
   border: 1px solid var(--pauta);
   border-radius: var(--raio);
-  box-shadow: 0 2px 8px rgb(29 42 54 / 0.12);
+  box-shadow: var(--sombra);
   font-size: var(--t-pequeno);
   line-height: 1.35;
   pointer-events: none;

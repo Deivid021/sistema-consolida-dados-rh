@@ -10,7 +10,7 @@
   top: -3rem;
   padding: var(--e-2) var(--e-4);
   background: var(--caneta);
-  color: #fff;
+  color: var(--sobre-caneta);
   z-index: 10;
 }
 
@@ -83,7 +83,7 @@
   padding: 0 var(--e-1);
   border-radius: 999px;
   background: var(--alerta);
-  color: #fff;
+  color: var(--sobre-alerta);
   font-size: var(--t-legenda);
   font-weight: 600;
   text-align: center;

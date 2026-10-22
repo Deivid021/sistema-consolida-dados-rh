@@ -1,7 +1,7 @@
 import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import type { TooltipContentProps } from 'recharts'
 import { formatarCompacto, formatarInteiro } from '../../util/formato'
-import { PAPEL_HEX, PAUTA_HEX, SERIES_HEX, TINTA_APAGADA_HEX } from './cores'
+import { usePaleta } from './cores'
 import { TabelaDoGrafico } from './TabelaDoGrafico'
 import './Graficos.css'
 
@@ -29,7 +29,8 @@ export function LinhasTempo<T extends { periodo: string }>({
   rotuloPeriodo = (p) => p,
   altura = 280,
 }: Props<T>) {
-  const cores = series.map((_, i) => SERIES_HEX[i])
+  const paleta = usePaleta()
+  const cores = series.map((_, i) => paleta.series[i])
   const maximo = Math.max(1, ...dados.flatMap((d) => series.map((s) => Number((d as Record<string, unknown>)[s.chave] ?? 0))))
   const marcas = marcasRedondas(maximo)
 
@@ -46,13 +47,13 @@ export function LinhasTempo<T extends { periodo: string }>({
       <div style={{ width: '100%', height: altura }} role="img" aria-label={descricao}>
         <ResponsiveContainer>
           <LineChart data={dados} margin={{ top: 8, right: 16, bottom: 0, left: 0 }}>
-            <CartesianGrid vertical={false} stroke={PAUTA_HEX} />
+            <CartesianGrid vertical={false} stroke={paleta.grade} />
             <XAxis
               dataKey="periodo"
               tickFormatter={rotuloPeriodo}
               tickLine={false}
-              axisLine={{ stroke: PAUTA_HEX }}
-              tick={{ fill: TINTA_APAGADA_HEX, fontSize: 12 }}
+              axisLine={{ stroke: paleta.eixo }}
+              tick={{ fill: paleta.textoEixo, fontSize: 12 }}
               minTickGap={16}
             />
             <YAxis
@@ -62,11 +63,11 @@ export function LinhasTempo<T extends { periodo: string }>({
               tickLine={false}
               axisLine={false}
               width={44}
-              tick={{ fill: TINTA_APAGADA_HEX, fontSize: 12 }}
+              tick={{ fill: paleta.textoEixo, fontSize: 12 }}
               allowDecimals={false}
             />
             <Tooltip
-              cursor={{ stroke: TINTA_APAGADA_HEX, strokeWidth: 1 }}
+              cursor={{ stroke: paleta.textoEixo, strokeWidth: 1 }}
               content={(props) => <Dica {...props} series={series} cores={cores} rotuloPeriodo={rotuloPeriodo} />}
             />
             {series.map((s, i) => (
@@ -80,7 +81,7 @@ export function LinhasTempo<T extends { periodo: string }>({
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 dot={false}
-                activeDot={{ r: 5, stroke: PAPEL_HEX, strokeWidth: 2 }}
+                activeDot={{ r: 5, stroke: paleta.fundo, strokeWidth: 2 }}
                 isAnimationActive={false}
               />
             ))}

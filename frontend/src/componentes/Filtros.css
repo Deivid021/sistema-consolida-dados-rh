@@ -94,7 +94,7 @@
 }
 
 .etiqueta:hover {
-  background: #d9e1f4;
+  background: var(--caneta-fundo-forte);
 }
 
 /* Grupo de alternativas (situação, regra, granularidade) */

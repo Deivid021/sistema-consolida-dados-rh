@@ -12,7 +12,13 @@ npm install
 npm run dev      # http://localhost:5173 (o Vite repassa /api para o 8080)
 npm run build    # gera dist/ (em produção o Dockerfile faz isso e põe o resultado dentro do jar)
 npm run lint
+npm run verificar:contraste       # contraste dos pares de cor dos dois temas
+npm run verificar:acessibilidade  # axe-core nas 6 telas, nos dois temas (precisa do npm run dev)
 ```
+
+A varredura de acessibilidade usa o Google Chrome instalado (`/usr/bin/google-chrome`, ou a
+variável `CHROME`). Com `CAPTURAS=/uma/pasta` ela salva capturas de cada tela no computador e
+em 360 px.
 
 ## Telas
 
@@ -39,11 +45,23 @@ visualização de dados.
   - caneta azul `#2447A6`
   - carimbo `#6B3FA0`
   - alerta `#B42318`, só para alertas e erros
-- **Paleta dos gráficos:** validada para daltonismo com o script da skill de dataviz.
+- **Paleta dos gráficos:** validada para daltonismo com o script da skill de dataviz, nos
+  dois temas.
+- **Modo Escuro de Alto Contraste** (RNF04, Solicitação de Mudança 3c): o "papel-carbono",
+  fundo `#0F1724` e tinta `#F3F6F9`. Escolhido em **Aparência**, no índice. No primeiro acesso
+  segue o sistema operacional, e a escolha fica guardada no navegador.
+  - Os mesmos tokens de `tokens.css` ganham outros valores sob `:root[data-tema='escuro']`;
+    nenhum componente tem cor fixa.
+  - Texto com contraste ≥ 7:1 (AAA); bordas, foco e marcas ≥ 3:1. Medido por
+    `npm run verificar:contraste`.
+  - O tema é aplicado por um script no `index.html` antes da primeira pintura, sem clarão.
+  - Os gráficos leem as cores do tema ativo (`usePaleta`, em `graficos/cores.ts`).
+  - Detalhes em `specs/002-modo-escuro-alto-contraste/`.
 - **Tipografia:** só a Archivo, com contraste pela largura. Títulos em largura expandida, texto
   normal, algarismos tabulares nas tabelas.
 - **Acessibilidade:**
   - todo gráfico tem uma visão em tabela;
   - foco visível pelo teclado;
-  - respeita "reduzir movimento";
-  - layout responsivo até celular.
+  - respeita "reduzir movimento" e as cores forçadas do sistema operacional;
+  - layout responsivo até celular;
+  - nenhuma violação do axe-core (WCAG 2.1 AA, e AAA de contraste no escuro) nas 6 telas.

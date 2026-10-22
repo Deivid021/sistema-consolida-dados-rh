@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { formatarInteiro, formatarPercentual } from '../../util/formato'
-import { corDoTextoSobre, OUTROS_HEX, SERIES_HEX } from './cores'
+import { rotuloSobre, usePaleta } from './cores'
 import { TabelaDoGrafico } from './TabelaDoGrafico'
 import './Regua.css'
 
@@ -24,26 +24,29 @@ interface Props {
  */
 export function Regua({ partes, descricao, maximoCores = 6 }: Props) {
   const [ativa, setAtiva] = useState<string | null>(null)
+  const paleta = usePaleta()
   const total = partes.reduce((soma, p) => soma + p.valor, 0)
   if (total === 0) return null
 
   const ordenadas = [...partes].sort((a, b) => b.valor - a.valor)
-  const principais = ordenadas.slice(0, maximoCores).map((p, i) => ({ ...p, cor: SERIES_HEX[i] }))
+  const principais = ordenadas.slice(0, maximoCores).map((p, i) => ({ ...p, cor: paleta.series[i] }))
   const resto = ordenadas.slice(maximoCores)
   const segmentos = resto.length
-    ? [...principais, { chave: '__outros', rotulo: `Outros (${resto.length})`, valor: resto.reduce((s, p) => s + p.valor, 0), cor: OUTROS_HEX }]
+    ? [...principais, { chave: '__outros', rotulo: `Outros (${resto.length})`, valor: resto.reduce((s, p) => s + p.valor, 0), cor: paleta.outros }]
     : principais
 
   const destaque = segmentos.find((s) => s.chave === ativa)
 
   return (
     <figure className="regua">
-      <div className="regua__barra" role="img" aria-label={descricao} onMouseLeave={() => setAtiva(null)}>
+      <div className="regua__barra" role="group" aria-label={descricao} onMouseLeave={() => setAtiva(null)}>
         {segmentos.map((s, i) => {
           const fracao = s.valor / total
+          const rotulo = rotuloSobre(s.cor, paleta)
           return (
             <div
               key={s.chave}
+              role="img"
               className="regua__segmento"
               style={{ flexGrow: s.valor, background: s.cor, animationDelay: `${i * 60}ms` }}
               onMouseEnter={() => setAtiva(s.chave)}
@@ -54,7 +57,11 @@ export function Regua({ partes, descricao, maximoCores = 6 }: Props) {
               data-ativo={ativa === s.chave || undefined}
             >
               {fracao >= 0.09 && (
-                <span className="regua__rotulo" style={{ color: corDoTextoSobre(s.cor) }}>
+                <span
+                  className={rotulo.comFundo ? 'regua__rotulo regua__rotulo--com-fundo' : 'regua__rotulo'}
+                  style={rotulo.comFundo ? undefined : { color: rotulo.cor }}
+                  aria-hidden="true"
+                >
                   {formatarPercentual(fracao)}
                 </span>
               )}

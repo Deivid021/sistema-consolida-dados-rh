@@ -2,6 +2,7 @@ import { NavLink, Outlet } from 'react-router'
 import type { PaginaAlertas, Status } from '../api/tipos'
 import { useDados } from '../api/useDados'
 import { Carimbo } from './Carimbo'
+import { SeletorTema } from './SeletorTema'
 import './Layout.css'
 
 const SECOES = [
@@ -43,6 +44,8 @@ export function Layout() {
           </ul>
         </nav>
         <Carimbo status={status.dados} carregando={status.carregando} />
+        {/* Logo abaixo do carimbo, no pé do índice: o mesmo lugar em todas as telas (RNF04) */}
+        <SeletorTema />
       </aside>
       <main id="conteudo" className="conteudo">
         <Outlet />

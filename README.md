@@ -12,6 +12,7 @@ Projeto da disciplina de Gerência de Projetos (Unidavi), 2026.
 |-----------|----------|
 | [Constituição](.specify/memory/constitution.md) | Princípios do projeto (dados públicos, sem CPF, escopo fechado) |
 | [Especificação](specs/001-consolidacao-dados-rh/spec.md) | Regras de negócio (RF01 a RF06, RNF01 a RNF03) |
+| [Modo Escuro de Alto Contraste](specs/002-modo-escuro-alto-contraste/spec.md) | RNF04, Solicitação de Mudança 3c |
 | [Plano](specs/001-consolidacao-dados-rh/plan.md) e [pesquisa](specs/001-consolidacao-dados-rh/research.md) | Decisões técnicas e comportamento da fonte |
 | [Modelo de dados](specs/001-consolidacao-dados-rh/data-model.md) | Tabelas e regras de conversão |
 | [Contrato da API](specs/001-consolidacao-dados-rh/contracts/api-consulta.yaml) | Contrato com o front-end (OpenAPI) |
@@ -25,7 +26,8 @@ Projeto da disciplina de Gerência de Projetos (Unidavi), 2026.
 Back-end: Java 21, Spring Boot 4.1, PostgreSQL 17 (Flyway), OpenPDF, springdoc-openapi. Testes
 com JUnit 5 e Testcontainers.
 
-Front-end: React 19, TypeScript, Vite, React Router e Recharts, na pasta `frontend/`.
+Front-end: React 19, TypeScript, Vite, React Router e Recharts, na pasta `frontend/`, com tema
+claro e Modo Escuro de Alto Contraste (RNF04).
 
 ## Rodar localmente
 
